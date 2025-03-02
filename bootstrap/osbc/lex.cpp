@@ -475,7 +475,13 @@ Token Lexer::GetSpecial()
 }
 
 /*************************************************************************/
-
+/**
+ * @brief Read a token from the input stream, regardless of backlog state.
+ * 
+ * @details
+ * Reads a token from the current line/file.  Does not account for backlog
+ * tokens, comments, or any thing else.
+ */
 Token Lexer::GetTokenRaw()
 {
     SkipWhiteSpace();
@@ -499,7 +505,12 @@ Token Lexer::GetTokenRaw()
 }
 
 /*************************************************************************/
-
+/**
+ * @brief Read a token from the backlog or input stream.
+ * 
+ * @details
+ * This function reads tokens from the backlog and handles stripping out comments.
+ */
 Token Lexer::GetToken()
 {
     if (!m_backlog.empty())

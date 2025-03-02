@@ -21,7 +21,7 @@
 class Resolver : public ast::NodeVisitor
 {
 private:
-    /// @brief We need to make two passes over the top level statements.
+    /// @brief We need to make three passes over the top level statements.
     int m_pass;
 
     PSymbolTable m_symbolTable;
@@ -29,7 +29,7 @@ private:
 
     PSymbol FindOrDie(int lineNumber, ast::PReferenceNode ref, const std::string &errFormat);
 
-    void ResolveBase(ast::DeclNode *decl);
+    void ResolveBase(std::shared_ptr<ast::DeclNode> decl);
 
 public:
     Resolver();

@@ -38,7 +38,10 @@ private:
 
     std::stack<Token> m_backlog; // Pushed back tokens.
 
+    /// @brief The current token being processed by the parser.
     Token m_current;
+
+    /// @brief The next token that will be returned by the lexer.
     Token m_lookAhead;
 
     std::string m_line;  // Last read line from the file.
@@ -73,27 +76,44 @@ private:
 
     ErrorCode ParseEscapedChar(int *res);
 
+    /// @brief Parse a single word token (identifier or keyword)
     Token GetWord();
+
+    /// @brief Parse a single number token
     Token GetNumber();
+
+    /// @brief Parse a character literal token
     Token GetChar();
+
+    /// @brief Parse a string literal token.
     Token GetString();
+
+    /// @brief Parse a special (symbol) token.
     Token GetSpecial();
 
+    /// @brief Read a token from the input stream, regardless of backlog state.
     Token GetTokenRaw();
+
+    /// @brief Read a token from the backlog or input stream.
     Token GetToken();
 
 public:
     /* constructor */ Lexer(const std::string &filename = "");
     virtual ~Lexer(void);
 
+    /// @brief The current token being processed by the parser.
     const Token &Current() const { return m_current; }
+
+    /// @brief The next token that will be returned by the lexer.
     const Token &LookAhead() const { return m_lookAhead; }
 
-    // Pushes a token back into the lexer so that it becomes the next token read.
+    /// @brief Pushes a token back into the lexer so that it becomes the next token to be read.
     void PushBack(const Token &);
 
+    /// @brief Flag indicating if we've reached the ned of the input stream.
     bool EndOfFile(void) const { return m_eof; }
 
+    /// @brief Returns the next token in the stream.
     Token Get();
 };
 

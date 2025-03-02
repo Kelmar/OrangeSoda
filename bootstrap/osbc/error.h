@@ -13,6 +13,14 @@
 
 namespace err
 {
+    /*
+     * At the moment we are simply throwing an exception when we run into
+     * a compile error.  This isn't the most elegant of solutions, as it
+     * can only report one error at a time, but for the purposes of our
+     * bootstrap compiler should be fine.
+     */
+
+    /// @brief Details of a compile error.
     class compile_error : public std::runtime_error
     {
     private:

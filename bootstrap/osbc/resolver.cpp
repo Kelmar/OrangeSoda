@@ -39,7 +39,7 @@ PSymbol Resolver::FindOrDie(int lineNumber, ast::PReferenceNode ref, const std::
 
 /*************************************************************************/
 
-void Resolver::ResolveBase(ast::DeclNode *node)
+void Resolver::ResolveBase(std::shared_ptr<ast::DeclNode> node)
 {
     PSymbol symbol = node->GetSymbol();
     //ASSERT(symbol, "Symbol not declared on node.");
@@ -205,7 +205,7 @@ void Resolver::Visit(ast::PUnaryExpressionNode node)
 
 void Resolver::Visit(ast::PVariableDeclStatementNode node)
 {
-    ResolveBase(node.get());
+    ResolveBase(node);
     PSymbol sym = node->GetSymbol();
 
     auto initializer = node->GetInitializer();
@@ -402,7 +402,7 @@ void Resolver::Visit(ast::PGlobalVariableNode node)
 
 void Resolver::Visit(ast::PParameterDeclNode node)
 {
-    ResolveBase(node.get());
+    ResolveBase(node);
 }
 
 /*************************************************************************/
@@ -413,7 +413,7 @@ void Resolver::Visit(ast::PFunctionNode node)
     {
     case 0:
         // Fist pass for resolving all return values.
-        ResolveBase(node.get());
+        ResolveBase(node);
         break;
 
     case 1:
