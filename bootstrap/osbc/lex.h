@@ -43,7 +43,7 @@ private:
 
     std::string m_line;  // Last read line from the file.
     size_t m_position;   // Where in the line we currently are.
-    size_t m_lineNumber; // The current line number we're on.
+    int m_lineNumber; // The current line number we're on.
 
     bool m_eof; // Set when we have reached the end of the file.
 

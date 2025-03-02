@@ -172,7 +172,7 @@ ast::PExpressionNode Parser::ParsePrimary()
     case (Token::Type)'(': // Sub expression
         {
             Accept();
-            auto rval = ParseExpression();
+            rval = ParseExpression();
             Accept(')');
             return rval;
         }

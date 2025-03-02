@@ -126,7 +126,7 @@ struct Token
         UNKNOWN       = 0xFFFF'FF01, // Unknown token encountered?
     };
 
-    size_t lineNumber;
+    int lineNumber;
     std::string literal;
     Type type;
 
@@ -137,7 +137,7 @@ struct Token
     {
     }
 
-    Token(size_t ln, std::string_view l, Type t)
+    Token(int ln, std::string_view l, Type t)
         : lineNumber(ln)
         , literal(l)
         , type(t)
