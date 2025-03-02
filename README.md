@@ -26,6 +26,7 @@ Thing's to add to bootstrap:
 - [ ] Variable allocation
 - [ ] Constant evaluation
 
+
 ## Building
 Can be built on most platforms using cmake.
 
