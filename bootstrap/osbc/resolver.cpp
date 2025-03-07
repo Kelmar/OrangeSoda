@@ -352,8 +352,39 @@ void Resolver::Visit(ast::PReturnStatementNode node)
 {
     auto expr = node->GetValue();
 
+    auto returnType = m_currentFun->GetSymbol()->baseType;
+
     if (expr)
+    {
         expr->Accept(*this);
+
+        auto resultType = expr->GetResultType();
+
+        if (resultType != returnType)
+        {
+            throw compile_error(
+                node->GetLineNumber(),
+                "Return type {0} for function '{1}' differs from declared type '{2}'",
+                resultType->name(),
+                m_currentFun->GetIdent().literal,
+                returnType->name()
+            );
+        }
+    }
+    else
+    {
+        auto voidType = m_symbolTable->Find("void");
+
+        if (returnType != voidType)
+        {
+            throw compile_error(
+                node->GetLineNumber(),
+                "Return requires {0} value for function '{1}'",
+                returnType->name(),
+                m_currentFun->GetIdent().literal
+            );
+        }
+    }
 }
 
 /*************************************************************************/
@@ -409,6 +440,8 @@ void Resolver::Visit(ast::PParameterDeclNode node)
 
 void Resolver::Visit(ast::PFunctionNode node)
 {
+    m_currentFun = node;
+
     switch (m_pass)
     {
     case 0:
@@ -434,6 +467,8 @@ void Resolver::Visit(ast::PFunctionNode node)
         m_symbolTable = m_symbolTable->Parent();
         break;
     }
+
+    m_currentFun.reset(); // Padantic pointer clear.
 }
 
 /*************************************************************************/

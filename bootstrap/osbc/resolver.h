@@ -25,6 +25,8 @@ private:
     int m_pass;
 
     PSymbolTable m_symbolTable;
+
+    /// @brief Function that we're currently validating.
     ast::PFunctionNode m_currentFun;
 
     PSymbol FindOrDie(int lineNumber, ast::PReferenceNode ref, const std::string &errFormat);

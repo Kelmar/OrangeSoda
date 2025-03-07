@@ -26,6 +26,19 @@ function doThing(baz : int) : int
     return baz * 2;
 }
 
+/*
+function voidTest()
+{
+    return 10;
+}
+*/
+function intTest() : int
+{
+    //return; // Should fail, value required
+    //return "Hello"; // Should fail, wrong type
+    return 10; // Should pass
+}
+
 // Implicit void return
 function bar()
 {
