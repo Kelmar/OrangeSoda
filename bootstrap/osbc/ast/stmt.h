@@ -14,6 +14,19 @@ namespace ast
 {
     /****************************************************************/
 
+    enum class StatementType
+    {
+        VaribleDeclStatement,
+        CompoundStatement,
+        AssignmentStatement,
+        CallStatement,
+        ReturnStatement,
+        WhileStatement,
+        IfStatement,
+    };
+
+    /****************************************************************/
+
     class StatementNode : public Node
     {
     protected:
@@ -21,6 +34,8 @@ namespace ast
 
     public:
         virtual ~StatementNode() { }
+
+        virtual StatementType GetStatementType() const = 0;
     };
 
     typedef std::shared_ptr<StatementNode> PStatementNode;
@@ -61,6 +76,8 @@ namespace ast
             return std::make_shared<VariableDeclStatementNode>(private_tag__(), isConst, ident, type, initializer);
         }
 
+        virtual StatementType GetStatementType() const override { return StatementType::VaribleDeclStatement; }
+
         bool IsConstant() const { return m_isConst; }
 
         PExpressionNode GetInitializer() const { return m_initializer; }
@@ -84,6 +101,9 @@ namespace ast
         PCodeScope m_scope;
         PSymbolTable m_symbolTable;
 
+        bool m_hasVarDecls;
+        bool m_hasReturn;
+
     public:
     
         CompoundStatementNode(private_tag__, int lineNumber)
@@ -91,6 +111,8 @@ namespace ast
             , m_statements()
             , m_scope()
             , m_symbolTable()
+            , m_hasVarDecls(false)
+            , m_hasReturn(false)
         {
         }
 
@@ -98,6 +120,8 @@ namespace ast
         {
             return std::make_shared<CompoundStatementNode>(private_tag__(), lineNumber);
         }
+
+        virtual StatementType GetStatementType() const override { return StatementType::CompoundStatement; }
 
         void SetScope(PCodeScope scope)
         {
@@ -120,13 +144,16 @@ namespace ast
 
         void AddStatement(const PStatementNode &node)
         {
+            m_hasVarDecls |= node->GetStatementType() == StatementType::VaribleDeclStatement;
+            m_hasReturn |= node->GetStatementType() == StatementType::ReturnStatement;
+
             m_statements.push_back(node);
         }
 
         void AddStatements(const std::vector<PStatementNode> &nodes)
         {
             for (auto n : nodes)
-                m_statements.push_back(n);
+                AddStatement(n);
         }
 
         virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
@@ -159,6 +186,8 @@ namespace ast
             return std::make_shared<AssignmentStatementNode>(private_tag__(), lineNumber, ref, expr);
         }
 
+        virtual StatementType GetStatementType() const override { return StatementType::AssignmentStatement; }
+
         PReferenceNode GetReference() const { return m_reference; }
         PExpressionNode GetExpression() const { return m_expression; }
 
@@ -189,6 +218,8 @@ namespace ast
         {
             return std::make_shared<CallStatementNode>(private_tag__(), reference, params);
         }
+
+        virtual StatementType GetStatementType() const override { return StatementType::CallStatement; }
 
         /// Function being called.
         PReferenceNode GetReference() const { return m_reference; }
@@ -221,6 +252,8 @@ namespace ast
             return std::make_shared<ReturnStatementNode>(private_tag__(), lineNumber, value);
         }
 
+        virtual StatementType GetStatementType() const override { return StatementType::ReturnStatement; }
+
         PExpressionNode GetValue() const { return m_value; }
 
         virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
@@ -236,20 +269,22 @@ namespace ast
         struct private_tag__ { explicit private_tag__() = default; };
 
         PExpressionNode m_condition;
-        PStatementNode m_body;
+        PCompoundStatementNode m_body;
 
     public:
-        WhileStatementNode(private_tag__, int lineNumber, PExpressionNode condition, PStatementNode body)
+        WhileStatementNode(private_tag__, int lineNumber, PExpressionNode condition, PCompoundStatementNode body)
              : StatementNode(lineNumber)
              , m_condition(condition)
              , m_body(body)
         {
         }
 
-        static PWhileStatementNode Create(int lineNumber, PExpressionNode condition, PStatementNode body)
+        static PWhileStatementNode Create(int lineNumber, PExpressionNode condition, PCompoundStatementNode body)
         {
             return std::make_shared<WhileStatementNode>(private_tag__(), lineNumber, condition, body);
         }
+
+        virtual StatementType GetStatementType() const override { return StatementType::WhileStatement; }
 
         PExpressionNode GetCondition() const { return m_condition; }
 
@@ -298,6 +333,8 @@ namespace ast
                 truePart,
                 falsePart);
         }
+
+        virtual StatementType GetStatementType() const override { return StatementType::IfStatement; }
 
         PExpressionNode GetCondition() const { return m_condition; }
 

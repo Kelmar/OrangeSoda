@@ -17,6 +17,8 @@
  *
  * @details
  * This pass validates that all used references are declared.
+ * 
+ * Also handles type validation and other correctness checks.
  */
 class Resolver : public ast::NodeVisitor
 {

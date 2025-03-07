@@ -29,9 +29,10 @@ function doThing(baz : int) : int
 /*
 function voidTest()
 {
-    return 10;
+    return 10; // Should fail, value for void type.
 }
 */
+
 function intTest() : int
 {
     //return; // Should fail, value required

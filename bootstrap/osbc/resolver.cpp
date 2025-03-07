@@ -288,9 +288,7 @@ void Resolver::Visit(ast::PAssignmentStatementNode node)
     auto exprType = expr->GetResultType();
 
     if (!exprType)
-    {
-        abort();
-    }
+        throw std::logic_error("BUG: Result type not filled in for expression.");
 
     if (exprType != sym->baseType)
     {

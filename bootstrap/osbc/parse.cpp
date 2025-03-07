@@ -475,7 +475,7 @@ ast::PStatementNode Parser::ParseWhileStatement()
     
     Accept(')');
 
-    ast::PStatementNode body = ParseCompoundStatement();
+    auto body = ParseCompoundStatement();
 
     return ast::WhileStatementNode::Create(lineNumber, condition, body);
 }
