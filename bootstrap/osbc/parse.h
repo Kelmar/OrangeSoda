@@ -98,7 +98,7 @@ protected:
     ast::PImportNode ParseImportStatement();
 
     ast::PReferenceNode ParseNameReference();
-    ast::PReferenceNode ParseTypeReference();
+    ast::PReferenceNode ParseTypeReference(bool acceptVoid);
     ast::PReferenceNode ParseReference();
 
     ast::PConstantExpressionNode ParseConstantLiteral();

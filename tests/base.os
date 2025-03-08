@@ -4,7 +4,8 @@ var a : int;
 
 const five : int = 5;
 
-function baz()
+// Explict void return type
+function baz() : void
 {
     //five = doThing(5);
     a = doThing(five);

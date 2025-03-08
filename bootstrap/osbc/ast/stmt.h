@@ -101,17 +101,18 @@ namespace ast
         PCodeScope m_scope;
         PSymbolTable m_symbolTable;
 
-        bool m_hasVarDecls;
+        bool m_hasVarDecl;
         bool m_hasReturn;
 
     public:
-    
+
+        // lineNumber is start of compound statement.
         CompoundStatementNode(private_tag__, int lineNumber)
             : StatementNode(lineNumber)
             , m_statements()
             , m_scope()
             , m_symbolTable()
-            , m_hasVarDecls(false)
+            , m_hasVarDecl(false)
             , m_hasReturn(false)
         {
         }
@@ -130,6 +131,10 @@ namespace ast
 
         PCodeScope GetScope() const { return m_scope; }
 
+        bool HasReturn() const { return m_hasReturn; }
+
+        bool HasVarDecl() const { return m_hasVarDecl; }
+
         void SetSymbolTable(PSymbolTable symbolTable)
         {
             //ASSERT(!m_symbolTable, "Symbol table already set.");
@@ -144,7 +149,7 @@ namespace ast
 
         void AddStatement(const PStatementNode &node)
         {
-            m_hasVarDecls |= node->GetStatementType() == StatementType::VaribleDeclStatement;
+            m_hasVarDecl |= node->GetStatementType() == StatementType::VaribleDeclStatement;
             m_hasReturn |= node->GetStatementType() == StatementType::ReturnStatement;
 
             m_statements.push_back(node);

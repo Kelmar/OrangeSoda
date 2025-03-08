@@ -87,14 +87,17 @@ struct Token
         IN            = 0x0000'2001,
 
         FOR           = 0x0000'3000,
-        OUT           = 0x0000'3001,
-        REF           = 0x0000'3002,
-        SET           = 0x0000'3003,
-        VAR           = 0x0000'3004,
+        INT           = 0x0000'3001,
+        OUT           = 0x0000'3002,
+        REF           = 0x0000'3003,
+        SET           = 0x0000'3004,
+        VAR           = 0x0000'3005,
 
-        ELSE          = 0x0000'4000,
-        ENUM          = 0x0000'4001,
-        VOID          = 0x0000'4002,
+        BOOL          = 0x0000'4000,
+        CHAR          = 0x0000'4001,
+        ELSE          = 0x0000'4002,
+        ENUM          = 0x0000'4003,
+        VOID          = 0x0000'4004,
 
         BREAK         = 0x0000'5000,
         CLASS         = 0x0000'5001,
@@ -104,7 +107,8 @@ struct Token
         EXPORT        = 0x0000'6000,
         IMPORT        = 0x0000'6001,
         RETURN        = 0x0000'6002,
-        SWITCH        = 0x0000'6003,
+        STRING        = 0x0000'6003,
+        SWITCH        = 0x0000'6004,
 
         CONTINUE      = 0x0000'8000,
         FUNCTION      = 0x0000'8001,
@@ -208,12 +212,16 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string>
         case Token::Type::IF: name = "if"; break;
         case Token::Type::IN: name = "in"; break;
         case Token::Type::FOR: name = "for"; break;
+        case Token::Type::INT: name = "int"; break;
         case Token::Type::OUT: name = "out"; break;
         case Token::Type::REF: name = "ref"; break;
         case Token::Type::SET: name = "set"; break;
         case Token::Type::VAR: name = "var"; break;
+        case Token::Type::BOOL: name = "bool"; break;
+        case Token::Type::CHAR: name = "char"; break;
         case Token::Type::ELSE: name = "else"; break;
         case Token::Type::ENUM: name = "enum"; break;
+        case Token::Type::VOID: name = "void"; break;
         case Token::Type::BREAK: name = "break"; break;
         case Token::Type::CLASS: name = "class"; break;
         case Token::Type::CONST: name = "const"; break;
@@ -221,6 +229,7 @@ struct fmt::formatter<Token::Type> : fmt::formatter<std::string>
         case Token::Type::EXPORT: name = "export"; break;
         case Token::Type::IMPORT: name = "import"; break;
         case Token::Type::RETURN: name = "return"; break;
+        case Token::Type::STRING: name = "string"; break;
         case Token::Type::SWITCH: name = "switch"; break;
         case Token::Type::CONTINUE: name = "continue"; break;
         case Token::Type::FUNCTION: name = "function"; break;

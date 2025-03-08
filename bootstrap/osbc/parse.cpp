@@ -89,11 +89,25 @@ ast::PReferenceNode Parser::ParseNameReference()
  * Unlike ParseReference(), these can only have doted notation, and not have
  * array or pointer references.
  */
-ast::PReferenceNode Parser::ParseTypeReference()
+ast::PReferenceNode Parser::ParseTypeReference(bool acceptVoid)
 {
-    Token ident = Accept(Token::Type::IDENT);
+    switch (m_current.type)
+    {
+    case Token::Type::VOID:
+        if (!acceptVoid)
+            throw compile_error(m_current.lineNumber, "Void is invalid type for this declartion.");
+        [[fallthrough]];
 
-    return ast::ReferenceNode::Create(ident);
+    case Token::Type::IDENT:
+    case Token::Type::BOOL:
+    case Token::Type::CHAR:
+    case Token::Type::INT:
+    case Token::Type::STRING:
+        return ast::ReferenceNode::Create(Accept());
+
+    default:
+        throw compile_error(m_current.lineNumber, "Unexpected {0} token, type expected.", m_current.type);
+    }
 }
 
 /*************************************************************************/
@@ -597,7 +611,7 @@ ast::PParameterDeclNode Parser::ParseParamDecl()
 
     Accept(':');
 
-    ast::PReferenceNode typeReference = ParseTypeReference();
+    ast::PReferenceNode typeReference = ParseTypeReference(false);
 
     return ast::ParameterDeclNode::Create(passBy, ident, typeReference);
 }
@@ -655,7 +669,7 @@ ast::PTLStatementNode Parser::ParseFunction()
     if (m_current.type == (Token::Type)':')
     {
         Accept(); // Return type specified.
-        returnType = ParseTypeReference();
+        returnType = ParseTypeReference(true);
     }
     else
     {
@@ -695,7 +709,7 @@ ast::PVariableDeclStatementNode Parser::ParseVarDecl()
     {
         // Type specified
         Accept();
-        typeReference = ParseTypeReference();
+        typeReference = ParseTypeReference(false);
     }
 
     // For our bootstrap compiler we're going to require the type declaration.
