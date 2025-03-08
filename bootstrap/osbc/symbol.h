@@ -40,11 +40,13 @@ private:
 
     std::vector<PSymbol> m_parameters;
     SymbolTable *m_parent;
+    int m_index;
     std::string m_name;
 
-    /* constructor */ Symbol(SymbolTable *parent, const std::string &name)
+    /* constructor */ Symbol(SymbolTable *parent, int index, const std::string &name)
         : m_parameters()
         , m_parent(parent)
+        , m_index(index)
         , m_name(name)
     {
     }
@@ -52,6 +54,11 @@ private:
 public:
     // Get the symbol table that manages this symbol.
     SymbolTable &Parent() const { return *m_parent; }
+
+    int index() const { return m_index; }
+
+    /// @brief Returns true if this is a global variable or not.
+    bool isGlobal() const;
 
     // The literal name of the symbol
     const std::string &name() const { return m_name; }

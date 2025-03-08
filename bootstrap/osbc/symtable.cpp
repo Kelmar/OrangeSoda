@@ -49,7 +49,9 @@ PSymbol SymbolTable::Find(ast::PReferenceNode reference, Scoping scoping /* = Sc
 
 PSymbol SymbolTable::Add(const std::string &ident)
 {
-    PSymbol rval = std::shared_ptr<Symbol>(new Symbol(this, ident));
+    int index = static_cast<int>(m_symbols.size());
+
+    PSymbol rval = std::shared_ptr<Symbol>(new Symbol(this, index, ident));
 
     m_symbols[ident] = rval;
 
@@ -61,7 +63,7 @@ PSymbol SymbolTable::Add(const std::string &ident)
 PSymbol SymbolTable::Add(const Token &ident)
 {
     PSymbol rval = Add(ident.literal);
-    
+
     rval->lineNumber = ident.lineNumber;
 
     return rval;

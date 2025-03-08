@@ -258,7 +258,12 @@ void CodeGen::Visit(ast::PFunctionNode node)
 
     m_symbolTable = node->GetSymbolTable();
 
-    node->GetBody()->Accept(*this);
+    auto body = node->GetBody();
+
+    body->Accept(*this);
+
+    if (!body->HasReturn())
+        fmt::println("  RTS");
 
     m_symbolTable = m_symbolTable->Parent();
 

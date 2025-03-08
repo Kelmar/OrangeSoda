@@ -3,9 +3,18 @@
 
 #include "bootstrap.h"
 #include "symbol.h"
+#include "symtable.h"
 
 #include <fmt/format.h>
 
+/*************************************************************************/
+
+bool Symbol::isGlobal() const
+{
+    return m_parent->Parent() == nullptr;
+}
+
+/*************************************************************************/
 /*************************************************************************/
 
 auto fmt::formatter<Symbol::UseType>::format(Symbol::UseType useType, format_context &ctx) const

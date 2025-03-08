@@ -67,6 +67,9 @@ void Resolver::ResolveBase(std::shared_ptr<ast::DeclNode> node)
 void Resolver::Visit(ast::PModuleNode node)
 {
     m_symbolTable = node->GetSymbolTable();
+
+    m_voidType = m_symbolTable->Find("void");
+
     //ASSERT(m_symbolTable, "Symbol table not initialized!");
 
     m_pass = 0;
@@ -371,9 +374,7 @@ void Resolver::Visit(ast::PReturnStatementNode node)
     }
     else
     {
-        auto voidType = m_symbolTable->Find("void");
-
-        if (returnType != voidType)
+        if (returnType != m_voidType)
         {
             throw compile_error(
                 node->GetLineNumber(),
@@ -460,7 +461,23 @@ void Resolver::Visit(ast::PFunctionNode node)
         // Third pass for resolving body items.
         m_symbolTable = node->GetSymbolTable();
 
-        node->GetBody()->Accept(*this);
+        auto body = node->GetBody();
+
+        body->Accept(*this);
+
+        if (!body->HasReturn())
+        {
+            auto returnType = node->GetSymbol()->baseType;
+
+            if (returnType != m_voidType)
+            {
+                throw compile_error(
+                    node->GetLineNumber(),
+                    "Function '{0}' requires return statement.",
+                    node->GetIdent().literal
+                );
+            }
+        }
 
         m_symbolTable = m_symbolTable->Parent();
         break;

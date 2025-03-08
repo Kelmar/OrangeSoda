@@ -26,6 +26,8 @@ private:
     /// @brief We need to make three passes over the top level statements.
     int m_pass;
 
+    PSymbol m_voidType;
+
     PSymbolTable m_symbolTable;
 
     /// @brief Function that we're currently validating.
