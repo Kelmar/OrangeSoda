@@ -1,11 +1,10 @@
 import foo;
 
-var a : int;
-
-const five : int = 5;
+var a: int;
+const five: int = 5;
 
 // Explict void return type
-function baz() : void
+function baz(): void
 {
     //five = doThing(5);
     a = doThing(five);
@@ -16,13 +15,13 @@ function baz() : void
  */
 
 /*
-function doThing(ref bar : int, bar : string) : int
+function doThing(ref bar: int, bar: string): int
 {
     return bar * 2;
 }
 */
 
-function doThing(baz : int) : int
+function doThing(baz: int): int
 {
     return baz * 2;
 }
@@ -34,7 +33,7 @@ function voidTest()
 }
 */
 
-function intTest() : int
+function intTest(): int
 {
     //return; // Should fail, value required
     //return "Hello"; // Should fail, wrong type
@@ -44,8 +43,8 @@ function intTest() : int
 // Implicit void return
 function bar()
 {
-    var b : string;
-    //var baz : string;
+    var b: string;
+    //var baz: string;
 
     a = 6 * 8 + 5;
 
@@ -68,7 +67,7 @@ function bar()
 
 function main()
 {
-    var c : int;
+    var c, x, y: int;
     bar();
     c = 5 + 10;
 }

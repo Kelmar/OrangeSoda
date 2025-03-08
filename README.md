@@ -41,7 +41,7 @@ function doThing()
     baz = 2 + 5 * 10;
 }
 
-function doOtherThing(bar : int) : int
+function doOtherThing(bar : int): int
 {
     return bar * 2;
 }
@@ -54,12 +54,11 @@ The bootstrap compiler is implemented as a recursive decent parser that builds
 up an abstract syntax tree and runs several passes over the AST to generate the
 final code output.
 
-Thing's to add to bootstrap:
-- [ ] Basic return analysis (make sure 'return' is used for functions that need it.)
+Things left to add to bootstrap:
 - [ ] Variable allocation
-- [ ] Constant evaluation
+- [ ] Constant evaluation (const folding)
 - [ ] Arrays and user defined structs
-- [ ] Possibly will need const folding and boolean short circuit evaluation.
+- [ ] Possibly will need boolean short circuit evaluation.
 
 The output is a yet to be written virtual machine, though some experimentation
 has been done with interfacing to LLVM.

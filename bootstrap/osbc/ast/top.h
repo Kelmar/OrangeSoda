@@ -21,7 +21,9 @@ namespace ast
 
     /****************************************************************/
 
-    class ImportNode : public TLStatementNode, public std::enable_shared_from_this<ImportNode>
+    class ImportNode :
+        public TLStatementNode,
+        public std::enable_shared_from_this<ImportNode>
     {
     protected:
         struct private_tag__ { explicit private_tag__() = default; };
@@ -51,7 +53,9 @@ namespace ast
 
     /****************************************************************/
 
-    class GlobalVariableNode : public TLStatementNode, public std::enable_shared_from_this<GlobalVariableNode>
+    class GlobalVariableNode :
+        public TLStatementNode,
+        public std::enable_shared_from_this<GlobalVariableNode>
     {
     protected:
         struct private_tag__ { explicit private_tag__() = default; };

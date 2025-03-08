@@ -141,7 +141,9 @@ protected:
     std::vector<ast::PParameterDeclNode> ParseFunctionParameters();
     ast::PTLStatementNode ParseFunction();
 
-    ast::PVariableDeclStatementNode ParseVarDecl();
+    std::vector<Token> ParseIdentList();
+    std::vector<ast::PVariableDeclStatementNode> ParseVarDecl();
+    ast::PVariableDeclStatementNode ParseConstDecl();
 
     /// @brief Parse a top level statement
     bool ParseTopLevelStatement(ast::PModuleNode &mod);

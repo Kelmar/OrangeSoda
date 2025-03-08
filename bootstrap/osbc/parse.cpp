@@ -509,8 +509,13 @@ bool Parser::ParseStatement(std::vector<ast::PStatementNode> &body)
 
     switch (m_current.type)
     {
+    case Token::Type::CONST:
+        body.push_back(ParseConstDecl());
+        break;
+
     case Token::Type::VAR:
-        rval = ParseVarDecl();
+        for (auto decl : ParseVarDecl())
+            body.push_back(decl);
         break;
 
     case Token::Type::IF:
@@ -547,9 +552,8 @@ bool Parser::ParseStatement(std::vector<ast::PStatementNode> &body)
         return false;
     }
 
-    ASSERT(rval != nullptr, "Invalid statement returned from sub parse");
-
-    body.push_back(rval);
+    if (rval)
+        body.push_back(rval);
 
     return true;
 }
@@ -685,46 +689,79 @@ ast::PTLStatementNode Parser::ParseFunction()
 
 /*************************************************************************/
 /**
+ * @brief Parse a list of identifiers for variable defintions.
+ * 
+ * ident_list: ident
+ *           | ident_list ',' ident
+ */
+std::vector<Token> Parser::ParseIdentList()
+{
+    std::vector<Token> rval;
+
+    while (true)
+    {
+        rval.push_back(Accept(Token::Type::IDENT));
+
+        if (m_current.type != (Token::Type)',')
+            break;
+
+        Accept(',');
+    }
+
+    return rval;
+}
+
+/*************************************************************************/
+/**
  * @brief Parse a variable or constant defintion.
  * 
- * variable: VAR <ident>
- *         | VAR <ident> ':' type_reference
- *         | CONST <ident> '=' constant_value
- *         | CONST <ident> ':' type_reference '=' constant_value ';'
+ * variable: VAR ident_list ':' type_reference
  */
-ast::PVariableDeclStatementNode Parser::ParseVarDecl()
+std::vector<ast::PVariableDeclStatementNode> Parser::ParseVarDecl()
 {
-    //ASSERT(m_current.type == Token::Type::VAR || m_current.type == Token::Type::CONST);
+    Accept(Token::Type::VAR);
 
-    Token::Type varType = m_current.type;
-    bool isConst = varType == Token::Type::CONST;
+    std::vector<Token> varNames;
+    
+    for (Token t : ParseIdentList())
+        varNames.push_back(t);
 
-    Accept();
+    Accept(':');
+
+    auto typeReference = ParseTypeReference(false);
+
+    std::vector<ast::PVariableDeclStatementNode> rval;
+
+    for (auto varName : varNames)
+        rval.push_back(ast::VariableDeclStatementNode::Create(false, varName, typeReference, nullptr));
+
+    return rval;
+}
+
+/*************************************************************************/
+/**
+ * @brief Parse a constant declaration.
+ *
+ * variable: CONST <ident> '=' constant_value
+ *         | CONST <ident> ':' type_reference '=' constant_value
+ */
+ast::PVariableDeclStatementNode Parser::ParseConstDecl()
+{
+    Accept(Token::Type::CONST);
 
     Token varName = Accept(Token::Type::IDENT);
-    ast::PExpressionNode initializer;
-    ast::PReferenceNode typeReference;
 
-    if (m_current.type == (Token::Type)':')
-    {
-        // Type specified
-        Accept();
-        typeReference = ParseTypeReference(false);
-    }
+    Accept(':');
 
-    // For our bootstrap compiler we're going to require the type declaration.
+    auto typeReference = ParseTypeReference(false);
 
-    if (!typeReference)
-        throw compile_error(varName.lineNumber, "{0} '{1}' requires type in this compiler.", varType, varName.literal);
+    Accept('=');
 
-    if (m_current.type == (Token::Type)'=')
-    {
-        Accept('=');
-        initializer = ParseExpression();
-    }
+    auto initializer = ParseExpression();
 
-    return ast::VariableDeclStatementNode::Create(isConst, varName, typeReference, initializer);
+    return ast::VariableDeclStatementNode::Create(true, varName, typeReference, initializer);
 }
+
 
 /*************************************************************************/
 /**
@@ -745,8 +782,13 @@ bool Parser::ParseTopLevelStatement(ast::PModuleNode &mod)
         return true;
 
     case Token::Type::VAR:
+        for (auto decl : ParseVarDecl())
+            mod->Add(ast::GlobalVariableNode::Create(decl));
+        Accept(';');
+        return true;
+
     case Token::Type::CONST:
-        mod->Add(ast::GlobalVariableNode::Create(ParseVarDecl()));
+        mod->Add(ast::GlobalVariableNode::Create(ParseConstDecl()));
         Accept(';');
         return true;
 
