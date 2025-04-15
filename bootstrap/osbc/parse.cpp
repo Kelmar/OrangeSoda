@@ -196,6 +196,9 @@ ast::PExpressionNode Parser::ParsePrimary()
         throw compile_error(m_current.lineNumber, "Expected primary expression");
         break;
     }
+
+    // GCC 11 erroniously thinks we can get to this part.
+    return 0;
 }
 
 /*************************************************************************/
