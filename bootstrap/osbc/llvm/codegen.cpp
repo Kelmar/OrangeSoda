@@ -149,62 +149,108 @@ void CodeGen::Visit(ast::PBinaryExpressionNode node)
 {
     (void)node;
 
-#if 0
-    auto l = node->GetLeft()->Accept(*this);
-    auto r = node->GetRight()->Accept(*this);
+    node->GetLeft()->Accept(*this);
+    Value *left = m_valueResult;
+
+    node->GetRight()->Accept(*this);
+    Value *right = m_valueResult;
 
     Token::Type op = node->GetOperator();
 
     switch (op)
     {
-    case (Token::Type)'+': return m_builder->CreateAdd(l, r, "addtmp");
-    case (Token::Type)'-': return m_builder->CreateSub(l, r, "subtmp");
-    case (Token::Type)'*': return m_builder->CreateMul(l, r, "multmp");
-    case (Token::Type)'/': return m_builder->CreateSDiv(l, r, "divtmp");
-    case (Token::Type)'%': return m_builder->CreateSRem(l, r, "modtmp");
-    case (Token::Type)'&': return m_builder->CreateAnd(l, r, "andtmp");
-    case (Token::Type)'|': return m_builder->CreateOr (l, r, "ortmp");
-    case (Token::Type)'^': return m_builder->CreateXor(l, r, "xortmp");
-    case Token::Type::LeftShift: return m_builder->CreateShl(l, r, "shltmp");
-    case Token::Type::RightShift: return m_builder->CreateAShr(l, r, "shrtmp");
+    case (Token::Type)'+':
+        m_valueResult = m_builder->CreateAdd(left, right, "addtmp");
+        break;
 
-    case (Token::Type)'>': return m_builder->CreateCmp(CmpInst::ICMP_SGT, l, r, "gttmp");
-    case (Token::Type)'<': return m_builder->CreateCmp(CmpInst::ICMP_SLT, l, r, "lttmp");
-    case Token::Type::Equality: return m_builder->CreateCmp(CmpInst::ICMP_EQ, l, r, "eqtmp");
-    case Token::Type::NotEqual: return m_builder->CreateCmp(CmpInst::ICMP_NE, l, r, "neqtmp");
-    case Token::Type::LessEqual: return m_builder->CreateCmp(CmpInst::ICMP_SLE, l, r, "letmp");
-    case Token::Type::GreatEqual: return m_builder->CreateCmp(CmpInst::ICMP_SGE, l, r, "getmp");
+    case (Token::Type)'-': 
+        m_valueResult = m_builder->CreateSub(left, right, "subtmp");
+        break;
+
+    case (Token::Type)'*':
+        m_valueResult = m_builder->CreateMul(left, right, "multmp");
+        break;
+
+    case (Token::Type)'/': 
+        m_valueResult = m_builder->CreateSDiv(left, right, "divtmp");
+        break;
+
+    case (Token::Type)'%': 
+        m_valueResult = m_builder->CreateSRem(left, right, "modtmp");
+        break;
+
+    case (Token::Type)'&':
+        m_valueResult = m_builder->CreateAnd(left, right, "andtmp");
+        break;
+
+    case (Token::Type)'|': 
+        m_valueResult = m_builder->CreateOr (left, right, "ortmp");
+        break;
+
+    case (Token::Type)'^': 
+        m_valueResult = m_builder->CreateXor(left, right, "xortmp");
+        break;
+
+    case Token::Type::LeftShift: 
+        m_valueResult = m_builder->CreateShl(left, right, "shltmp");
+        break;
+
+    case Token::Type::RightShift: 
+        m_valueResult = m_builder->CreateAShr(left, right, "shrtmp");
+        break;
+
+    case (Token::Type)'>': 
+        m_valueResult = m_builder->CreateCmp(CmpInst::ICMP_SGT, left, right, "gttmp");
+        break;
+
+    case (Token::Type)'<': 
+        m_valueResult = m_builder->CreateCmp(CmpInst::ICMP_SLT, left, right, "lttmp");
+        break;
+
+    case Token::Type::Equality:
+        m_valueResult = m_builder->CreateCmp(CmpInst::ICMP_EQ, left, right, "eqtmp");
+        break;
+
+    case Token::Type::NotEqual:
+        m_valueResult = m_builder->CreateCmp(CmpInst::ICMP_NE, left, right, "neqtmp");
+        break;
+
+    case Token::Type::LessEqual: 
+        m_valueResult = m_builder->CreateCmp(CmpInst::ICMP_SLE, left, right, "letmp");
+        break;
+
+    case Token::Type::GreatEqual: 
+        m_valueResult = m_builder->CreateCmp(CmpInst::ICMP_SGE, left, right, "getmp");
+        break;
 
     default:
-        fmt::print("Invalid operator {0}\r\n", op);
-        abort();
+        throw std::runtime_error(fmt::format("Invalid operator {0}\r\n", op));
     }
-#endif
 }
 
 /*************************************************************************/
 
 void CodeGen::Visit(ast::PUnaryExpressionNode node)
 {
-    (void)node;
-
-#if 0
-    auto sub = node->GetSub()->Accept(*this);
+    node->GetSub()->Accept(*this);
 
     Token::Type op = node->GetOperator();
 
     switch (op)
     {
-    case (Token::Type)'-': return m_builder->CreateNeg(sub, "negtmp");
+    case (Token::Type)'-':
+        m_valueResult = m_builder->CreateNeg(m_valueResult, "negtmp");
+        break;
 
     case (Token::Type)'!':
-    case (Token::Type)'~': return m_builder->CreateNot(sub, "nottmp");
+    case (Token::Type)'~': 
+        m_valueResult = m_builder->CreateNot(m_valueResult, "nottmp");
+        break;
 
     case (Token::Type)'+': // Effectively a do nothing operator
     default:
-        return sub;
+        break;
     }
-#endif
 }
 
 /*************************************************************************/
@@ -221,28 +267,32 @@ void CodeGen::Visit(ast::PVariableDeclStatementNode node)
 
 void CodeGen::Visit(ast::PCompoundStatementNode node)
 {
-    (void)node;
+    // Restore parent block on exit.
+    auto parentBlock = m_currentBlock;
+    auto restore = defer([=, this] () { m_currentBlock = parentBlock; });
 
-#if 0
-    BasicBlock *bb = BasicBlock::Create(*m_context, "entry", fn);
+    m_currentBlock = BasicBlock::Create(*m_context, "entry", m_currentFunction);
 
-    m_builder->SetInsertPoint(bb);
+    m_builder->SetInsertPoint(m_currentBlock);
 
     VisitAll(node->GetStatements());
-#endif
+
+    //m_blockResult = m_currentBlock;
 }
 
 /*************************************************************************/
 
 void CodeGen::Visit(ast::PAssignmentStatementNode node)
 {
-    (void)node;
+    node->GetExpression()->Accept(*this);
+    Value *expr = m_valueResult;
+    (void)expr;
 
 #if 0
-    auto expr = node->GetExpression()->Accept(*this);
     auto to = node->GetReference()->Accept(*this);
     
-    //return m_builder->CreateStore(expr, to);
+    StoreInst *inst = m_builder->CreateStore(expr, to);
+    AddInstruction(inst);
 #endif
 }
 
@@ -271,13 +321,11 @@ void CodeGen::Visit(ast::PWhileStatementNode node)
 
 void CodeGen::Visit(ast::PIfStatementNode node)
 {
-    (void)node;
-
-#if 0
-    Value *cond = node->GetCondition()->Accept(*this);
+    node->GetCondition()->Accept(*this);
+    Value *cond = m_valueResult;
 
     if (!cond)
-        return nullptr;
+        return;
 
     Value *trueVal = ConstantInt::get(*m_context, APInt::getZero(1));
     Value *ifCond = m_builder->CreateICmpNE(cond, trueVal, "ifcond");
@@ -294,7 +342,8 @@ void CodeGen::Visit(ast::PIfStatementNode node)
     // Then part
     m_builder->SetInsertPoint(thenBlock);
 
-    Value *then = node->GetTruePart()->Accept(*this);
+    node->GetTruePart()->Accept(*this);
+    Value *then = m_valueResult;
 
     if (!then)
         return;
@@ -309,11 +358,15 @@ void CodeGen::Visit(ast::PIfStatementNode node)
 
     if (elsePart)
     {
-        m_builder->func->insert(func->end(), elseBlock);
+        //InsertInstruction(elseBlock);
+        func->insert(func->end(), elseBlock);
         m_builder->SetInsertPoint(elseBlock);
         
-        if (elsePart)
-            else_ = elsePart->Accept(*this);
+        //if (elsePart) // Not sure why this if was here...
+        {
+            elsePart->Accept(*this);
+            else_ = m_valueResult;
+        }
 
         m_builder->CreateBr(mergeBlock);
         // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
@@ -330,7 +383,6 @@ void CodeGen::Visit(ast::PIfStatementNode node)
 
     if (else_)
         pn->addIncoming(else_, elseBlock);
-#endif
 }
 
 /*************************************************************************/
@@ -360,25 +412,24 @@ void CodeGen::Visit(ast::PParameterDeclNode node)
 
 void CodeGen::Visit(ast::PFunctionNode node)
 {
-    (void)node;
-
-#if 0
     llvm::Type *retType = llvm::Type::getVoidTy(*m_context);
     std::vector<llvm::Type *> args;
 
-    FunctionType *ft = FunctionType::get(retType, args, false);
+    FunctionType *funcType = FunctionType::get(retType, args, false);
 
-    PSymbol name = stmtNode.GetName();
+    PSymbol name = node->GetSymbol();
 
-    Function *fn = Function::Create(ft, Function::ExternalLinkage, name->name, *m_module);
+    m_currentFunction = Function::Create(funcType, Function::ExternalLinkage, name->name(), *m_module);
 
     node->GetBody()->Accept(*this);
 
-    verifyFunction(*fn);
+    if (verifyFunction(*m_currentFunction))
+        abort(); // Function has errors
 
     // Run function pass optimizations.
-    //m_fpm->run(*fn, *m_fam);
-#endif
+    //m_fpm->run(*m_currentFunction, *m_fam);
+
+    m_currentFunction = nullptr; // Pedantic clear
 }
 
 /*************************************************************************/

@@ -35,6 +35,12 @@ private:
     std::unique<llvm::StandardInsturmentations> m_si;
 #endif
 
+    // Function that we're currently compiling
+    llvm::Function *m_currentFunction;
+    llvm::BasicBlock *m_currentBlock;
+
+    llvm::Value *m_valueResult;
+
 public:
     /* constructor */ CodeGen();
     virtual ~CodeGen();
