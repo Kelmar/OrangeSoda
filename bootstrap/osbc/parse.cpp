@@ -716,7 +716,7 @@ std::vector<Token> Parser::ParseIdentList()
 
 /*************************************************************************/
 /**
- * @brief Parse a variable or constant defintion.
+ * @brief Parse a variable defintion.
  * 
  * variable: VAR ident_list ':' type_reference
  */

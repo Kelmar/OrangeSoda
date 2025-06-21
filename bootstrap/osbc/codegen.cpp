@@ -122,7 +122,7 @@ void CodeGen::Visit(ast::PUnaryExpressionNode node)
 {
     node->GetSub()->Accept(*this);
 
-    auto op = s_bin_op_map[node->GetOperator()];
+    auto op = s_uni_op_map[node->GetOperator()];
 
     fmt::println("  {0}", op);
 }

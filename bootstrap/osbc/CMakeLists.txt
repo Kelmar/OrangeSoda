@@ -27,13 +27,6 @@ set(HDRS "osbc.h"
          "symtable.h"
          "token.h")
 
-add_executable(osbc ${SRCS} ${HDRS})
-
-set_property (TARGET osbc PROPERTY CXX_STANDARD 23)
-
-target_link_libraries(osbc PRIVATE fmt::fmt)
-target_include_directories(osbc PRIVATE ../include)
-
 if (USE_LLVM)
   find_package(LLVM REQUIRED CONFIG)
 
@@ -42,10 +35,26 @@ if (USE_LLVM)
 
   llvm_map_components_to_libnames(llvm_libs support core)
 
-  target_link_libraries(osbc PRIVATE ${llvm_libs})
-  target_include_directories(osbc PRIVATE ${LLVM_INCLUDE_DIRS})
+  set (SRCS ${SRCS}
+            "llvm/codegen.cpp")
+
+  set (HDRS ${HDRS}
+            "llvm/llvm.h"
+            "llvm/codegen.h")
 
   add_definitions(${LLVM_DEFINTIONS})
+endif()
+
+add_executable(osbc ${SRCS} ${HDRS})
+
+set_property (TARGET osbc PROPERTY CXX_STANDARD 23)
+
+target_link_libraries(osbc PRIVATE fmt::fmt)
+target_include_directories(osbc PRIVATE ../include)
+
+if (USE_LLVM)
+  target_link_libraries(osbc PRIVATE ${llvm_libs})
+  target_include_directories(osbc PRIVATE ${LLVM_INCLUDE_DIRS})
 endif()
 
 if (MSVC)

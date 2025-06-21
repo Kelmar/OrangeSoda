@@ -1,14 +1,17 @@
 /*************************************************************************/
 /*************************************************************************/
 
-#include "osbc.h"
-#include "llvm/llvm.h"
+#include "../osbc.h"
+#include "llvm.h"
 
-#include "llvm/codegen.h"
+#include "codegen.h"
 
 using namespace llvm;
 
 /*************************************************************************/
+
+namespace os_llvm
+{
 
 CodeGen::CodeGen()
 {
@@ -52,32 +55,46 @@ CodeGen::~CodeGen()
 
 /*************************************************************************/
 
+#if 0
 Value *CodeGen::process(const ast::ReferenceNode &refNode)
 {
     (void)refNode;
     return nullptr;
 }
+#endif
 
 /*************************************************************************/
 
-void CodeGen::process(const ast::ModuleNode &modNode)
+void CodeGen::Visit(ast::PModuleNode node)
 {
-    for (auto item : modNode.GetStatements())
-        visit(item);
+    VisitAll(node->GetStatements());
+}
+
+/*************************************************************************/
+// Expressions
+/*************************************************************************/
+
+void CodeGen::Visit(ast::PReferenceNode node)
+{
+    (void)node;
 }
 
 /*************************************************************************/
 
-Value *CodeGen::process(const ast::ConstantExpressionNode &exprNode)
+void CodeGen::Visit(ast::PConstantExpressionNode node)
 {
-    const std::string &literal = exprNode.GetLiteral();
+    const std::string &literal = node->GetToken().literal;
+    
+    PSymbol resultType = node->GetResultType();
+    (void)resultType;
 
-    switch (exprNode.GetConstType())
+#if 0
+    switch (resultType)
     {
     case Token::Type::BOOL_CONST:
         {
             APInt val = literal == "true" ? APInt::getMaxValue(1) : APInt::getZero(1);
-            return ConstantInt::get(*m_context, val);
+            //return ConstantInt::get(*m_context, val);
         }
         break;
 
@@ -85,7 +102,7 @@ Value *CodeGen::process(const ast::ConstantExpressionNode &exprNode)
         {
             // APInt(bits, value, signed);
             APInt val(32, std::stoi(literal), true);
-            return ConstantInt::get(*m_context, val);
+            //return ConstantInt::get(*m_context, val);
         }
         break;
 
@@ -106,28 +123,39 @@ Value *CodeGen::process(const ast::ConstantExpressionNode &exprNode)
         break;
 
     default:
-        throw std::runtime_error(fmt::format("Unknown constant token type {0}", exprNode.GetConstType()));
+        std::string errMsg = fmt::format("Unknown constant token type {0}", resultType);
+        throw std::runtime_error(errMsg);
     }
-
-    return nullptr;
+#endif
 }
 
 /*************************************************************************/
 
-Value *CodeGen::process(const ast::ReferenceExpressionNode &exprNode)
+void CodeGen::Visit(ast::PReferenceExpressionNode node)
 {
-    (void)exprNode;
-    return nullptr;    
+    (void)node;
 }
 
 /*************************************************************************/
 
-Value *CodeGen::process(const ast::BinaryExpressionNode &exprNode)
+void CodeGen::Visit(ast::PCallExpressionNode node)
 {
-    Value *l = visit(exprNode.GetLeft());
-    Value *r = visit(exprNode.GetRight());
+    (void)node;
+}
 
-    switch (exprNode.GetOperator())
+/*************************************************************************/
+
+void CodeGen::Visit(ast::PBinaryExpressionNode node)
+{
+    (void)node;
+
+#if 0
+    auto l = node->GetLeft()->Accept(*this);
+    auto r = node->GetRight()->Accept(*this);
+
+    Token::Type op = node->GetOperator();
+
+    switch (op)
     {
     case (Token::Type)'+': return m_builder->CreateAdd(l, r, "addtmp");
     case (Token::Type)'-': return m_builder->CreateSub(l, r, "subtmp");
@@ -148,20 +176,24 @@ Value *CodeGen::process(const ast::BinaryExpressionNode &exprNode)
     case Token::Type::GreatEqual: return m_builder->CreateCmp(CmpInst::ICMP_SGE, l, r, "getmp");
 
     default:
-        fmt::print("Invalid operator {0}\r\n", exprNode.GetOperator());
+        fmt::print("Invalid operator {0}\r\n", op);
         abort();
     }
-
-    return nullptr;
+#endif
 }
 
 /*************************************************************************/
 
-Value *CodeGen::process(const ast::UnaryExpressionNode &exprNode)
+void CodeGen::Visit(ast::PUnaryExpressionNode node)
 {
-    Value *sub = visit(exprNode.GetSub());
+    (void)node;
 
-    switch (exprNode.GetOperator())
+#if 0
+    auto sub = node->GetSub()->Accept(*this);
+
+    Token::Type op = node->GetOperator();
+
+    switch (op)
     {
     case (Token::Type)'-': return m_builder->CreateNeg(sub, "negtmp");
 
@@ -172,49 +204,77 @@ Value *CodeGen::process(const ast::UnaryExpressionNode &exprNode)
     default:
         return sub;
     }
+#endif
 }
 
 /*************************************************************************/
 
-Value *CodeGen::process(const ast::CompoundStatementNode &stmtNode, Function *fn /* = nullptr */)
+void CodeGen::Visit(ast::PVariableDeclStatementNode node)
 {
+    if (node->IsConstant())
+    {
+        // TODO: Perform constant evaluation here.
+    }
+}
+
+/*************************************************************************/
+
+void CodeGen::Visit(ast::PCompoundStatementNode node)
+{
+    (void)node;
+
+#if 0
     BasicBlock *bb = BasicBlock::Create(*m_context, "entry", fn);
 
     m_builder->SetInsertPoint(bb);
+
+    VisitAll(node->GetStatements());
+#endif
+}
+
+/*************************************************************************/
+
+void CodeGen::Visit(ast::PAssignmentStatementNode node)
+{
+    (void)node;
+
+#if 0
+    auto expr = node->GetExpression()->Accept(*this);
+    auto to = node->GetReference()->Accept(*this);
     
-    for (auto statement : stmtNode.GetItems())
-    {
-        auto val = visit(statement);
-        (void)val;
-    }
-
-    return nullptr;
-}
-
-
-/*************************************************************************/
-
-Value *CodeGen::process(const ast::AssignmentStatementNode &stmtNode)
-{
-    Value *to = visit(stmtNode.GetReference());
-    Value *expr = visit(stmtNode.GetExpression());
-    
-    return m_builder->CreateStore(expr, to);
+    //return m_builder->CreateStore(expr, to);
+#endif
 }
 
 /*************************************************************************/
 
-Value *CodeGen::process(const ast::WhileStatementNode &stmtNode)
+void CodeGen::Visit(ast::PCallStatementNode node)
 {
-    (void)stmtNode;
-    return nullptr;
+    (void)node;
 }
 
 /*************************************************************************/
 
-Value *CodeGen::process(const ast::IfStatementNode &stmtNode)
+void CodeGen::Visit(ast::PReturnStatementNode node)
 {
-    Value *cond = visit(stmtNode.GetCondition());
+    (void)node;
+}
+
+/*************************************************************************/
+
+void CodeGen::Visit(ast::PWhileStatementNode node)
+{
+    (void)node;
+}
+
+/*************************************************************************/
+
+void CodeGen::Visit(ast::PIfStatementNode node)
+{
+    (void)node;
+
+#if 0
+    Value *cond = node->GetCondition()->Accept(*this);
 
     if (!cond)
         return nullptr;
@@ -234,26 +294,26 @@ Value *CodeGen::process(const ast::IfStatementNode &stmtNode)
     // Then part
     m_builder->SetInsertPoint(thenBlock);
 
-    Value *then = visit(stmtNode.GetTruePart());
+    Value *then = node->GetTruePart()->Accept(*this);
+
     if (!then)
-        return nullptr;
+        return;
 
     m_builder->CreateBr(mergeBlock);
     // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
     thenBlock = m_builder->GetInsertBlock();
 
     // Else part
-    auto elsePart = stmtNode.GetFalsePart();
+    auto elsePart = node->GetFalsePart();
     Value *else_ = nullptr;
 
     if (elsePart)
     {
-        m_builder->
-        func->insert(func->end(), elseBlock);
+        m_builder->func->insert(func->end(), elseBlock);
         m_builder->SetInsertPoint(elseBlock);
         
         if (elsePart)
-            else_ = visit(elsePart);
+            else_ = elsePart->Accept(*this);
 
         m_builder->CreateBr(mergeBlock);
         // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
@@ -270,14 +330,39 @@ Value *CodeGen::process(const ast::IfStatementNode &stmtNode)
 
     if (else_)
         pn->addIncoming(else_, elseBlock);
+#endif
+}
 
-    return pn;
+/*************************************************************************/
+// Top Level Statements
+/*************************************************************************/
+
+void CodeGen::Visit(ast::PImportNode node)
+{
+    (void)node;
 }
 
 /*************************************************************************/
 
-Value *CodeGen::process(const ast::FunctionNode &stmtNode)
+void CodeGen::Visit(ast::PGlobalVariableNode node)
 {
+    (void)node;
+}
+
+/*************************************************************************/
+
+void CodeGen::Visit(ast::PParameterDeclNode node)
+{
+    (void)node;
+}
+
+/*************************************************************************/
+
+void CodeGen::Visit(ast::PFunctionNode node)
+{
+    (void)node;
+
+#if 0
     llvm::Type *retType = llvm::Type::getVoidTy(*m_context);
     std::vector<llvm::Type *> args;
 
@@ -287,73 +372,27 @@ Value *CodeGen::process(const ast::FunctionNode &stmtNode)
 
     Function *fn = Function::Create(ft, Function::ExternalLinkage, name->name, *m_module);
 
-    process(*stmtNode.GetBody(), fn);
+    node->GetBody()->Accept(*this);
 
     verifyFunction(*fn);
 
     // Run function pass optimizations.
     //m_fpm->run(*fn, *m_fam);
-
-    return nullptr;
+#endif
 }
 
 /*************************************************************************/
 
-Value *CodeGen::visit(ast::PNode node)
-{
-    if (!node)
-        return nullptr;
-
-    switch (node->GetType())
-    {
-    case ast::Node::Type::Reference:
-        return process(static_cast<ast::ReferenceNode&>(*node));
-
-    case ast::Node::Type::Module:
-        process(static_cast<ast::ModuleNode&>(*node));
-        return nullptr;
-
-    // Expressions
-    case ast::Node::Type::ConstantExpression:
-        return process(static_cast<ast::ConstantExpressionNode&>(*node));
-
-    case ast::Node::Type::ReferenceExpression:
-        return process(static_cast<ast::ReferenceExpressionNode&>(*node));
-
-    case ast::Node::Type::BinaryExpression:
-        return process(static_cast<ast::BinaryExpressionNode&>(*node));
-
-    case ast::Node::Type::UnaryExpression:
-        return process(static_cast<ast::UnaryExpressionNode&>(*node));
-
-    // Statements
-    case ast::Node::Type::CompoundStatement:
-        return process(static_cast<ast::CompoundStatementNode&>(*node));
-
-    case ast::Node::Type::AssignmentStatement:
-        return process(static_cast<ast::AssignmentStatementNode&>(*node));
-
-    case ast::Node::Type::WhileStatement:
-        return process(static_cast<ast::WhileStatementNode&>(*node));
-
-    case ast::Node::Type::IfStatement:
-        return process(static_cast<ast::IfStatementNode&>(*node));
-
-    // Top Level Statements
-    case ast::Node::Type::FunctionStatement:
-        return process(static_cast<ast::FunctionNode&>(*node));
-
-    default:
-        throw std::runtime_error("Unknown node type!");
-    }
-}
-
-/*************************************************************************/
-
+#if 0
 void CodeGen::generate(ast::PNode root)
 {
     visit(root);
     m_module->print(llvm::errs(), nullptr);
 }
+#endif
+
+/*************************************************************************/
+
+}; // namespace os_llvm
 
 /*************************************************************************/

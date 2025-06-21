@@ -6,11 +6,17 @@
 
 /*************************************************************************/
 
-#include "ast.h"
+#include "llvm.h"
+#include "../ast.h"
 
 /*************************************************************************/
 
-class CodeGen
+namespace os_llvm
+{
+
+/*************************************************************************/
+
+class CodeGen : public ast::NodeVisitor
 {
 private:
     std::unique_ptr<llvm::LLVMContext> m_context;
@@ -29,32 +35,37 @@ private:
     std::unique<llvm::StandardInsturmentations> m_si;
 #endif
 
-    llvm::Value *process(const ast::ReferenceNode &refNode);
-    void process(const ast::ModuleNode &modNode);
-
-    // Expressions
-    llvm::Value *process(const ast::ConstantExpressionNode &exprNode);
-    llvm::Value *process(const ast::ReferenceExpressionNode &exprNode);
-    llvm::Value *process(const ast::BinaryExpressionNode &exprNode);
-    llvm::Value *process(const ast::UnaryExpressionNode &exprNode);
-
-    // Statements
-    llvm::Value *process(const ast::CompoundStatementNode &stmtNode, llvm::Function *fn = nullptr);
-    llvm::Value *process(const ast::AssignmentStatementNode &stmtNode);
-    llvm::Value *process(const ast::WhileStatementNode &stmtNode);
-    llvm::Value *process(const ast::IfStatementNode &stmtNode);
-
-    // Top Level Statements
-    llvm::Value *process(const ast::FunctionNode &stmtNode);
-
-    llvm::Value *visit(ast::PNode node);
-
 public:
     /* constructor */ CodeGen();
     virtual ~CodeGen();
 
-    void generate(ast::PNode root);
+    virtual void Visit(ast::PModuleNode node) override;
+
+    // Expressions
+    virtual void Visit(ast::PReferenceNode node) override;
+    virtual void Visit(ast::PConstantExpressionNode node) override;
+    virtual void Visit(ast::PReferenceExpressionNode node) override;
+    virtual void Visit(ast::PCallExpressionNode node) override;
+    virtual void Visit(ast::PBinaryExpressionNode node) override;
+    virtual void Visit(ast::PUnaryExpressionNode node) override;
+
+    // Statements
+    virtual void Visit(ast::PVariableDeclStatementNode node) override;
+    virtual void Visit(ast::PCompoundStatementNode node) override;
+    virtual void Visit(ast::PAssignmentStatementNode node) override;
+    virtual void Visit(ast::PCallStatementNode node) override;
+    virtual void Visit(ast::PReturnStatementNode node) override;
+    virtual void Visit(ast::PWhileStatementNode node) override;
+    virtual void Visit(ast::PIfStatementNode node) override;
+
+    // Top Level Statements
+    virtual void Visit(ast::PImportNode node) override;
+    virtual void Visit(ast::PGlobalVariableNode node) override;
+    virtual void Visit(ast::PParameterDeclNode node) override;
+    virtual void Visit(ast::PFunctionNode node) override;
 };
+
+}; // namespace os_llvm
 
 /*************************************************************************/
 
