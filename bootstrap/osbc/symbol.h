@@ -124,6 +124,18 @@ struct fmt::formatter<Symbol::UseType> : formatter<string_view>
 
 /*************************************************************************/
 
+template <>
+struct fmt::formatter<Symbol> : formatter<string_view>
+{
+    auto format(const Symbol &symbol, format_context &ctx) const
+        -> format_context::iterator
+    {
+        return formatter<string_view>::format(symbol.name(), ctx);
+    }
+};
+
+/*************************************************************************/
+
 #endif /* OS_SYMBOL_H__ */
 
 /*************************************************************************/

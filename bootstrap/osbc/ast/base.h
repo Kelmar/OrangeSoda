@@ -15,7 +15,6 @@
 namespace ast
 {
     /****************************************************************/
-
     class Node
     {
     private:
@@ -30,12 +29,8 @@ namespace ast
     public:
         virtual ~Node() { }
 
-        virtual void Accept(NodeVisitor &visitor) = 0;
-
         int GetLineNumber() const { return m_lineNumber; }
     };
-
-    typedef std::shared_ptr<Node> PNode;
 
     class ReferenceNode;
     typedef std::shared_ptr<ReferenceNode> PReferenceNode;
@@ -87,7 +82,9 @@ namespace ast
 
     typedef std::shared_ptr<class ModuleNode> PModuleNode;
 
-    class ModuleNode : public Node, public std::enable_shared_from_this<ModuleNode>
+    class ModuleNode : 
+        public Node,
+        public std::enable_shared_from_this<ModuleNode>
     {
     private:
         struct private_tag__ { explicit private_tag__() = default; };
@@ -141,7 +138,7 @@ namespace ast
 
         const std::vector<PTLStatementNode> &GetStatements() const { return m_statements; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(GetPtr()); }
+        void Accept(IModuleVisitor &visitor) { visitor.Visit(GetPtr()); }
     };
 
     /****************************************************************/

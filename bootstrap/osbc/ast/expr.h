@@ -41,10 +41,12 @@ namespace ast
         {
             m_resultType = resultType;
         }
+
+        virtual void Accept(IExpressionVisitor &visitor) = 0;
     };
 
     typedef std::shared_ptr<ExpressionNode> PExpressionNode;
-    
+
     /****************************************************************/
 
     // Sort of a pseudo expression node, this holds a reference to a name.
@@ -75,8 +77,6 @@ namespace ast
         }
 
         const Token &GetIdent() const { return m_ident; }
-        
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
 
         std::string ToString() const
         {
@@ -113,7 +113,10 @@ namespace ast
 
         virtual bool IsConstant() const override { return true; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IExpressionVisitor &visitor) override
+        {
+            return visitor.Visit(shared_from_this());
+        }
     };
 
     typedef std::shared_ptr<ConstantExpressionNode> PConstantExpressionNode;
@@ -155,7 +158,10 @@ namespace ast
 
         PSymbol GetSymbol() const { return m_symbol; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IExpressionVisitor &visitor) override
+        {
+            return visitor.Visit(shared_from_this());
+        }
     };
 
     /****************************************************************/
@@ -184,7 +190,10 @@ namespace ast
 
         virtual bool IsConstant() const override { return false; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IExpressionVisitor &visitor) override
+        {
+            return visitor.Visit(shared_from_this());
+        }
     };
 
     /****************************************************************/
@@ -230,7 +239,10 @@ namespace ast
         const PExpressionNode GetLeft() const { return m_left; }
         const PExpressionNode GetRight() const { return m_right; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IExpressionVisitor &visitor) override
+        {
+            return visitor.Visit(shared_from_this());
+        }
     };
 
     /****************************************************************/
@@ -262,7 +274,10 @@ namespace ast
 
         const PExpressionNode GetSub() const { return m_sub; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IExpressionVisitor &visitor) override
+        {
+            return visitor.Visit(shared_from_this());
+        }
     };
 
     /****************************************************************/

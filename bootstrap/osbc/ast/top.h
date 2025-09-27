@@ -17,6 +17,8 @@ namespace ast
 
     public:
         virtual ~TLStatementNode() {}
+
+        virtual void Accept(ITopLevelVisitor &visitor) = 0;
     };
 
     /****************************************************************/
@@ -48,7 +50,10 @@ namespace ast
 
         PReferenceNode GetReference() const { return m_reference; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(GetPtr()); }
+        virtual void Accept(ITopLevelVisitor &visitor) override
+        {
+            return visitor.Visit(GetPtr());
+        }
     };
 
     /****************************************************************/
@@ -78,7 +83,10 @@ namespace ast
 
         PVariableDeclStatementNode GetVariable() const { return m_variable; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(GetPtr()); }
+        virtual void Accept(ITopLevelVisitor &visitor) override
+        {
+            return visitor.Visit(GetPtr());
+        }
     };
 
     /****************************************************************/
@@ -116,7 +124,12 @@ namespace ast
 
         PassByType GetPassBy() const { return m_passBy; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(GetPtr()); }
+        /*
+        virtual void Accept(ITopLevelVisitor<T> &visitor)
+        {
+            return visitor.Visit(GetPtr());
+        }
+        */
     };
 
     typedef std::shared_ptr<ParameterDeclNode> PParameterDeclNode;
@@ -178,7 +191,10 @@ namespace ast
 
         const PCompoundStatementNode &GetBody() const { return m_body; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(GetPtr()); }
+        virtual void Accept(ITopLevelVisitor &visitor) override
+        {
+            return visitor.Visit(GetPtr());
+        }
     };
 
     typedef std::shared_ptr<FunctionNode> PFunctionNode;

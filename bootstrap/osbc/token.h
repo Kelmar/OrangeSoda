@@ -83,6 +83,8 @@ struct Token
          */ 
 
         // Keywords
+        DISCARD       = 0x0000'1000, // _ (discard)
+
         IF            = 0x0000'2000,
         IN            = 0x0000'2001,
 

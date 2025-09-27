@@ -36,6 +36,8 @@ namespace ast
         virtual ~StatementNode() { }
 
         virtual StatementType GetStatementType() const = 0;
+
+        virtual void Accept(IStatementVisitor &visitor) = 0;
     };
 
     typedef std::shared_ptr<StatementNode> PStatementNode;
@@ -82,7 +84,10 @@ namespace ast
 
         PExpressionNode GetInitializer() const { return m_initializer; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }  
+        virtual void Accept(IStatementVisitor &visitor) override
+        {
+            visitor.Visit(shared_from_this());
+        }
     };
 
     typedef std::shared_ptr<VariableDeclStatementNode> PVariableDeclStatementNode;
@@ -161,7 +166,10 @@ namespace ast
                 AddStatement(n);
         }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IStatementVisitor &visitor) override
+        {
+            visitor.Visit(shared_from_this());
+        }
     };
 
     typedef std::shared_ptr<CompoundStatementNode> PCompoundStatementNode;
@@ -196,7 +204,10 @@ namespace ast
         PReferenceNode GetReference() const { return m_reference; }
         PExpressionNode GetExpression() const { return m_expression; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IStatementVisitor &visitor) override
+        {
+            visitor.Visit(shared_from_this());
+        }
     };
 
     /****************************************************************/
@@ -231,7 +242,10 @@ namespace ast
 
         const std::vector<PExpressionNode> &GetParameters() const { return m_parameters; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IStatementVisitor &visitor) override
+        {
+            visitor.Visit(shared_from_this());
+        }
     };
 
     /****************************************************************/
@@ -261,7 +275,10 @@ namespace ast
 
         PExpressionNode GetValue() const { return m_value; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IStatementVisitor &visitor) override
+        {
+            visitor.Visit(shared_from_this());
+        }
     };
 
     /****************************************************************/
@@ -295,7 +312,10 @@ namespace ast
 
         PStatementNode GetBody() const { return m_body; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IStatementVisitor &visitor) override
+        {
+            visitor.Visit(shared_from_this());
+        }
     };
 
     /****************************************************************/
@@ -347,7 +367,10 @@ namespace ast
 
         PCompoundStatementNode GetFalsePart() const { return m_falsePart; }
 
-        virtual void Accept(NodeVisitor &visitor) override { visitor.Visit(shared_from_this()); }
+        virtual void Accept(IStatementVisitor &visitor) override
+        {
+            visitor.Visit(shared_from_this());
+        }
     };
 
     /****************************************************************/

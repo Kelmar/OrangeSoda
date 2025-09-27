@@ -86,15 +86,13 @@ void CodeGen::Visit(ast::PConstantExpressionNode node)
     const std::string &literal = node->GetToken().literal;
     
     PSymbol resultType = node->GetResultType();
-    (void)resultType;
-
-#if 0
-    switch (resultType)
+    
+    switch (resultType->constType)
     {
     case Token::Type::BOOL_CONST:
         {
-            APInt val = literal == "true" ? APInt::getMaxValue(1) : APInt::getZero(1);
-            //return ConstantInt::get(*m_context, val);
+            APInt val = (literal == "true") ? APInt::getMaxValue(1) : APInt::getZero(1);
+            m_valueResult = ConstantInt::get(*m_context, val);
         }
         break;
 
@@ -102,7 +100,7 @@ void CodeGen::Visit(ast::PConstantExpressionNode node)
         {
             // APInt(bits, value, signed);
             APInt val(32, std::stoi(literal), true);
-            //return ConstantInt::get(*m_context, val);
+            m_valueResult = ConstantInt::get(*m_context, val);
         }
         break;
 
@@ -110,23 +108,33 @@ void CodeGen::Visit(ast::PConstantExpressionNode node)
         {
             throw std::runtime_error("Character constants not supported yet.");
 
+            /*
+             * TODO: Not entirely sure how to handle character constants internally yet.    
+             *
+             * The language should probably treat all characters as UTF-8 or some other
+             * similar encoding, but that can contain mutliple bytes per character.
+             */
 
+            // APInt(bits, value, signed);
             //APInt val(8, literal[0], true);
-            //llvm::ConstantInt::get(*m_context, val);
+            //m_valueResult = ConstantInt::get(*m_context, val);
         }
         break;
 
     case Token::Type::STR_CONST:
         {
             throw std::runtime_error("String constants not supported yet.");
+
+            // Same problem as character, each character can have multiple bytes.
+
+            //m_valueResult = ConstantVector::get(*m_context, val);
         }
         break;
 
     default:
-        std::string errMsg = fmt::format("Unknown constant token type {0}", resultType);
+        std::string errMsg = fmt::format("Unknown constant token type {0}", *resultType);
         throw std::runtime_error(errMsg);
     }
-#endif
 }
 
 /*************************************************************************/
@@ -141,6 +149,16 @@ void CodeGen::Visit(ast::PReferenceExpressionNode node)
 void CodeGen::Visit(ast::PCallExpressionNode node)
 {
     (void)node;
+#if 0
+    auto statementNode = node->GetCall();
+
+    auto func = statementNode->GetReference();
+
+    // Push parameters to stack
+    VisitAll(statementNode->GetParameters());
+
+    m_valueResult = m_builder->CreateCall(func, args, "calltmp");
+#endif
 }
 
 /*************************************************************************/

@@ -452,7 +452,8 @@ void Resolver::Visit(ast::PFunctionNode node)
         // Second pass for resolving parameter values.
         m_symbolTable = node->GetSymbolTable();
 
-        VisitAll(node->GetParameters());
+        for (auto p : node->GetParameters())
+            ResolveBase(p);
 
         m_symbolTable = m_symbolTable->Parent();
         break;

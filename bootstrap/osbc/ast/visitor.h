@@ -72,7 +72,51 @@ namespace ast
 
     /****************************************************************/
 
+    struct IModuleVisitor
+    {
+        virtual void Visit(PModuleNode) = 0;
+    };
+
+    /****************************************************************/
+
+    struct IExpressionVisitor
+    {
+        virtual void Visit(PConstantExpressionNode) = 0;
+        virtual void Visit(PReferenceExpressionNode) = 0;
+        virtual void Visit(PCallExpressionNode) = 0;
+        virtual void Visit(PBinaryExpressionNode) = 0;
+        virtual void Visit(PUnaryExpressionNode) = 0;
+    };
+
+    /****************************************************************/
+
+    struct IStatementVisitor
+    {
+        virtual void Visit(PVariableDeclStatementNode) = 0;
+        virtual void Visit(PCompoundStatementNode) = 0;
+        virtual void Visit(PAssignmentStatementNode) = 0;
+        virtual void Visit(PCallStatementNode) = 0;
+        virtual void Visit(PReturnStatementNode) = 0;
+        virtual void Visit(PWhileStatementNode) = 0;
+        virtual void Visit(PIfStatementNode) = 0;
+    };
+
+    /****************************************************************/
+
+    struct ITopLevelVisitor
+    {
+        virtual void Visit(PImportNode) = 0;
+        virtual void Visit(PGlobalVariableNode) =0;
+        virtual void Visit(PFunctionNode) = 0;
+    };
+
+    /****************************************************************/
+
     class NodeVisitor
+        : public ITopLevelVisitor
+        , public IStatementVisitor
+        , public IExpressionVisitor
+        , public IModuleVisitor
     {
     protected:
         NodeVisitor() { }

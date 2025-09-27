@@ -13,6 +13,7 @@ namespace
 {
     const std::map<std::string, Token::Type> s_keywords =
     {
+        { "_"        , Token::Type::DISCARD    },
         { "if"       , Token::Type::IF         },
         { "in"       , Token::Type::IN         },
         { "int"      , Token::Type::INT        },
