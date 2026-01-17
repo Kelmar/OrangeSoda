@@ -2,11 +2,11 @@ Should be noted that the `const` and `readonly` keywords in OrangeSoda
 will behave more like C#'s versions.
 
 
-= `const`
+# `const`
 In this sense `const` describes a compile time value; and does not reserve
 any space in the runtime object that it resides in.
 
-= `readonly`
+# `readonly`
 Similar to C#, but behaves a bit more like C++'s version of `const` in
 that it reserves space inside the runtime object for that variable, and
 can be initialized at runtime.
