@@ -11,8 +11,8 @@ Similar to C#, but behaves a bit more like C++'s version of `const` in
 that it reserves space inside the runtime object for that variable, and
 can be initialized at runtime.
 
-Like C++ this would be allowable to use to indicate a contract that a
-function will not modify an object that gets passed in.
+Like C++ this would also be used to indicate a contract that a function
+will not modify an object that gets passed in.
 
 ```osoda
 class MyPrinter
