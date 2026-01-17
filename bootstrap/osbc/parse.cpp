@@ -503,6 +503,7 @@ ast::PStatementNode Parser::ParseWhileStatement()
  *          | for
  *          | while
  *          | compound
+ *          | return ';'
  *          | simple ';'
  *          | ';'
  */
@@ -604,7 +605,7 @@ ast::PCompoundStatementNode Parser::ParseCompoundStatement()
  */
 ast::PParameterDeclNode Parser::ParseParamDecl()
 {
-    PassByType passBy  = PassByType::Default;
+    PassByType passBy = PassByType::Default;
 
     auto itr = s_passByMap.find(m_current.type);
 
@@ -657,8 +658,8 @@ std::vector<ast::PParameterDeclNode> Parser::ParseFunctionParameters()
  * @brief Parse a function declaration
  * 
  * @details
- * function: FUNCTION <ident> '(' ')' compound
- *         | FUNCTION <ident> '(' ')' ':' type_reference compound
+ * function: FUNCTION <ident> '(' <parameters> ')' compound
+ *         | FUNCTION <ident> '(' <parameters> ')' ':' type_reference compound
  */
 ast::PTLStatementNode Parser::ParseFunction()
 {
@@ -666,7 +667,6 @@ ast::PTLStatementNode Parser::ParseFunction()
 
     Token ident = Accept(Token::Type::IDENT);
 
-    // TODO: Parse parameter defintions.
     Accept('(');
     auto parameters = ParseFunctionParameters();
     Accept(')');
@@ -772,6 +772,7 @@ ast::PVariableDeclStatementNode Parser::ParseConstDecl()
  *
  * toplevel: function
  *         | variable
+ *         | constant
  *         | struct
  *         | enum
  *         | set
