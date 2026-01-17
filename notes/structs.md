@@ -1,7 +1,7 @@
 Building out a test OS in C++ I realized that the language likes to add all
 sorts of extra things to structs if you aren't careful.  For exmaple
 
-```cplusplus
+```cpp
 struct PageDirectory
 {
     const int size = 0x1000; // This generates a member variable.
@@ -17,7 +17,7 @@ struct PageDirectory
 Things get more sticky if you try to use `constexpr` in the struct, as that
 still has odd side effects on the struct's generation:
 
-```cplusplus
+```cpp
 struct PageDirectory
 {
     static constexpr int size = 0x1000;
