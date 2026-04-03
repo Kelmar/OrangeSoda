@@ -48,7 +48,7 @@ function doOtherThing(bar : int): int
 ```
 
 # Bootstrap
-The bootstrap compiler is written in C++ and is dependent on the [fmt 11.0.2](https://fmt.dev/11.0/) library.
+The bootstrap compiler is written in C++ and is dependent on the [fmt 12.1.0](https://fmt.dev/12.0/) library.
 
 The bootstrap compiler is implemented as a recursive decent parser that builds
 up an abstract syntax tree and runs several passes over the AST to generate the
@@ -62,8 +62,6 @@ Things left to add to bootstrap:
 
 The output is a yet to be written virtual machine, though some experimentation
 has been done with interfacing to LLVM.
-
-(Note that the LLVM codegen is currently not up todate.)
 
 ## Building
 Can be built on most platforms using cmake.

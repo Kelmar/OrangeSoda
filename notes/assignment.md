@@ -15,3 +15,10 @@ var foo : int;
 foo = 5;
 if (foo == 10) { } // Okay, no assigment inside the if.
 ```
+
+The trade off is that you also cannot write:
+```osoda
+var foo, bar : int;
+
+foo = bar = 5; // Illegal, assignment of bar is not an expression.
+```

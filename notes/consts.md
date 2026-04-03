@@ -16,7 +16,7 @@ will not modify an object that gets passed in.
 ```osoda
 class MyPrinter
 {
-    // Function stipluates it will not modify w.
+    // Function stipluates it will not modify contents referenced in w.
     public void Print(readonly Widget w)
     {
         
