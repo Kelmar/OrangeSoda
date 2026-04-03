@@ -118,15 +118,17 @@ struct Token
         INTERFACE     = 0x0000'9000,
 
         // Multi character tokens
-        Equality      = 0x0001'0000, // ==
-        NotEqual      = 0x0001'0001, // !=
-        GreatEqual    = 0x0001'0002, // >=
-        LessEqual     = 0x0001'0003, // <=
-        LeftShift     = 0x0001'0004, // <<
-        RightShift    = 0x0001'0005, // >>
-        EOL_COMMENT   = 0x0001'0006, // //
-        COMMENT_START = 0x0001'0007, // /*
-        COMMENT_END   = 0x0001'0008, // */
+        LogicalOr     = 0x0001'0000, // ||
+        LogicalAnd    = 0x0001'0001, // &&
+        Equality      = 0x0001'0002, // ==
+        NotEqual      = 0x0001'0003, // !=
+        GreatEqual    = 0x0001'0004, // >=
+        LessEqual     = 0x0001'0005, // <=
+        LeftShift     = 0x0001'0006, // <<
+        RightShift    = 0x0001'0007, // >>
+        EOL_COMMENT   = 0x0001'0008, // //
+        COMMENT_START = 0x0001'0009, // /*
+        COMMENT_END   = 0x0001'000A, // */
 
         ERROR         = 0xFFFF'FF00, // Error in lex processing.
         UNKNOWN       = 0xFFFF'FF01, // Unknown token encountered?

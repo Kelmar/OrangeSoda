@@ -1,3 +1,4 @@
+# C++ issues
 Building out a test OS in C++ I realized that the language likes to add all
 sorts of extra things to structs if you aren't careful.  For exmaple
 
@@ -68,3 +69,6 @@ extend PageDirectory
 }
 ```
 
+# Additional Thoughts
+`struct` and `union` types should never have non-public members.  Extensions
+may have their own non-public methods and properties.

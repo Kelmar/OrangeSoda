@@ -13,10 +13,10 @@ using namespace llvm;
 namespace os_llvm
 {
 
-CodeGen::CodeGen()
+CodeGen::CodeGen(std::string_view sourceFileName)
 {
     m_context = std::make_unique<LLVMContext>();
-    m_module = std::make_unique<Module>("my cool jit", *m_context);
+    m_module = std::make_unique<Module>(sourceFileName, *m_context);
     m_builder = std::make_unique<IRBuilder<>>(*m_context);
 
 #if 0
@@ -64,10 +64,13 @@ Value *CodeGen::process(const ast::ReferenceNode &refNode)
 #endif
 
 /*************************************************************************/
+// Root
+/*************************************************************************/
 
 void CodeGen::Visit(ast::PModuleNode node)
 {
     VisitAll(node->GetStatements());
+    m_module->print(llvm::errs(), nullptr);
 }
 
 /*************************************************************************/
@@ -89,6 +92,10 @@ void CodeGen::Visit(ast::PConstantExpressionNode node)
     
     switch (resultType->constType)
     {
+    case Token::Type::VOID:
+        throw std::runtime_error("BUG: Got a void constant?");
+        break;
+
     case Token::Type::BOOL_CONST:
         {
             APInt val = (literal == "true") ? APInt::getMaxValue(1) : APInt::getZero(1);
@@ -202,7 +209,7 @@ void CodeGen::Visit(ast::PBinaryExpressionNode node)
         break;
 
     case (Token::Type)'|': 
-        m_valueResult = m_builder->CreateOr (left, right, "ortmp");
+        m_valueResult = m_builder->CreateOr(left, right, "ortmp");
         break;
 
     case (Token::Type)'^': 
@@ -215,6 +222,14 @@ void CodeGen::Visit(ast::PBinaryExpressionNode node)
 
     case Token::Type::RightShift: 
         m_valueResult = m_builder->CreateAShr(left, right, "shrtmp");
+        break;
+
+    case Token::Type::LogicalAnd:
+        m_valueResult = m_builder->CreateLogicalAnd(left, right, "landtmp");
+        break;
+
+    case Token::Type::LogicalOr:
+        m_valueResult = m_builder->CreateLogicalOr(left, right, "lortmp");
         break;
 
     case (Token::Type)'>': 
@@ -289,13 +304,19 @@ void CodeGen::Visit(ast::PCompoundStatementNode node)
     auto parentBlock = m_currentBlock;
     auto restore = defer([=, this] () { m_currentBlock = parentBlock; });
 
-    m_currentBlock = BasicBlock::Create(*m_context, "entry", m_currentFunction);
+    m_currentBlock = BasicBlock::Create(*m_context, "", m_currentFunction);
 
     m_builder->SetInsertPoint(m_currentBlock);
 
     VisitAll(node->GetStatements());
 
+    m_builder->CreateRetVoid();
+
     //m_blockResult = m_currentBlock;
+    m_currentBlock = parentBlock;
+
+    if (m_currentBlock)
+        m_builder->SetInsertPoint(m_currentBlock);
 }
 
 /*************************************************************************/
@@ -441,7 +462,7 @@ void CodeGen::Visit(ast::PFunctionNode node)
 
     node->GetBody()->Accept(*this);
 
-    if (verifyFunction(*m_currentFunction))
+    if (verifyFunction(*m_currentFunction, &llvm::errs()))
         abort(); // Function has errors
 
     // Run function pass optimizations.
@@ -449,16 +470,6 @@ void CodeGen::Visit(ast::PFunctionNode node)
 
     m_currentFunction = nullptr; // Pedantic clear
 }
-
-/*************************************************************************/
-
-#if 0
-void CodeGen::generate(ast::PNode root)
-{
-    visit(root);
-    m_module->print(llvm::errs(), nullptr);
-}
-#endif
 
 /*************************************************************************/
 

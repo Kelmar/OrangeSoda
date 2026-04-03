@@ -21,7 +21,7 @@ Declarer::~Declarer()
 /**
  * @brief Add a primitive built in type.
  */
-PSymbol Declarer::AddPrimitive(const std::string &name)
+PSymbol Declarer::AddPrimitive(const std::string &name, Token::Type constType)
 {
     PSymbol symbol = m_symbolTable->Add(name);
 
@@ -31,6 +31,7 @@ PSymbol Declarer::AddPrimitive(const std::string &name)
     symbol->isConst = true;
     symbol->isSpecial = true;
     symbol->baseType = nullptr;
+    symbol->constType = constType;
 
     return symbol;
 }
@@ -62,11 +63,11 @@ void Declarer::LoadBuiltIns()
     //fmt::print("Declarer setting up built in functions and types.\r\n");
 
     // Minimal viable built in types
-    PSymbol voidType = AddPrimitive("void");
-    PSymbol boolType = AddPrimitive("bool");
-    PSymbol charType = AddPrimitive("char");
-    PSymbol intType = AddPrimitive("int");
-    PSymbol stringType = AddPrimitive("string");
+    PSymbol voidType = AddPrimitive("void", Token::Type::VOID);
+    PSymbol boolType = AddPrimitive("bool", Token::Type::BOOL_CONST);
+    PSymbol charType = AddPrimitive("char", Token::Type::CHAR_CONST);
+    PSymbol intType = AddPrimitive("int", Token::Type::INT_CONST);
+    PSymbol stringType = AddPrimitive("string", Token::Type::STR_CONST);
 
     (void)charType;
     (void)stringType;

@@ -65,6 +65,10 @@ ast::PExpressionNode Parser::ParseBinary(HigherExpr higher, const std::vector<To
  * 
  * Later a reference will be more than just a single ident.  Could be a fully
  * qualified name such as foo.bar.baz.
+ *
+ * later:
+ * name_reference: <ident> '.' <name_reference>
+ *               | <ident>
  * 
  * Unlike ParseReference(), these can only have doted notation, and not have
  * array or pointer references.
@@ -85,6 +89,10 @@ ast::PReferenceNode Parser::ParseNameReference()
  * 
  * Later a reference will be more than just a single ident.  Could be a fully
  * qualified name such as foo.bar.baz.
+ *
+ * later:
+ * type_reference: <ident> '.' <type_reference>
+ *               | <ident>
  * 
  * Unlike ParseReference(), these can only have doted notation, and not have
  * array or pointer references.
@@ -198,7 +206,7 @@ ast::PExpressionNode Parser::ParsePrimary()
     }
 
     // GCC 11 erroniously thinks we can get to this part.
-    return 0;
+    //return 0;
 }
 
 /*************************************************************************/
@@ -221,10 +229,6 @@ ast::PExpressionNode Parser::ParseUnary()
         break;
 
     case (Token::Type)'-':
-        op = m_current.type;
-        Accept();
-        break;
-
     case (Token::Type)'!':
     case (Token::Type)'~':
         op = m_current.type;
@@ -250,7 +254,7 @@ ast::PExpressionNode Parser::ParseUnary()
  *       | factor '/' unary
  *       | factor '%' unary
  */
-ast::PExpressionNode Parser::ParseFactor()
+ast::PExpressionNode Parser::ParseMultiplicative()
 {
     const std::vector<Token::Type> OPS =
     {
@@ -276,7 +280,7 @@ ast::PExpressionNode Parser::ParseAdditive()
         (Token::Type)'-'
     };
 
-    return ParseBinary(&Parser::ParseFactor, OPS);
+    return ParseBinary(&Parser::ParseMultiplicative, OPS);
 }
 
 /*************************************************************************/
@@ -336,11 +340,86 @@ ast::PExpressionNode Parser::ParseEquality()
 
 /*************************************************************************/
 /*
- * expression: equality
+ * and: equality
+ *    | and '&' equality
+ */
+ast::PExpressionNode Parser::ParseAnd()
+{
+    const std::vector<Token::Type> OPS =
+    {
+        Token::Type::Ampersand
+    };
+
+    return ParseBinary(&Parser::ParseEquality, OPS);
+}
+
+/*************************************************************************/
+/*
+ * xor: and
+ *    | xor '^' and
+ */
+ast::PExpressionNode Parser::ParseXor()
+{
+    const std::vector<Token::Type> OPS =
+    {
+        Token::Type::Carrot
+    };
+
+    return ParseBinary(&Parser::ParseAnd, OPS);
+}
+
+/*************************************************************************/
+/*
+ * or: xor
+ *   | or '|' xor
+ */
+ast::PExpressionNode Parser::ParseOr()
+{
+    const std::vector<Token::Type> OPS =
+    {
+        Token::Type::Pipe
+    };
+
+    return ParseBinary(&Parser::ParseXor, OPS);
+}
+
+/*************************************************************************/
+/*
+ * logical_and: or
+ *            | logical_and '&&' or
+ */
+ast::PExpressionNode Parser::ParseLogicalAnd()
+{
+    const std::vector<Token::Type> OPS =
+    {
+        Token::Type::LogicalAnd
+    };
+
+    return ParseBinary(&Parser::ParseOr, OPS);
+}
+
+/*************************************************************************/
+/*
+ * logical_or: logical_and
+ *           | logical_or '||' logical_and
+ */
+ast::PExpressionNode Parser::ParseLogicalOr()
+{
+    const std::vector<Token::Type> OPS =
+    {
+        Token::Type::LogicalOr
+    };
+
+    return ParseBinary(&Parser::ParseLogicalAnd, OPS);
+}
+
+/*************************************************************************/
+/*
+ * expression: logical_or
  */
 ast::PExpressionNode Parser::ParseExpression()
 {
-    return ParseEquality();
+    return ParseLogicalOr();
 }
 
 /*************************************************************************/
@@ -764,7 +843,6 @@ ast::PVariableDeclStatementNode Parser::ParseConstDecl()
 
     return ast::VariableDeclStatementNode::Create(true, varName, typeReference, initializer);
 }
-
 
 /*************************************************************************/
 /**

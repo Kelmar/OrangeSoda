@@ -99,6 +99,8 @@ void Resolver::Visit(ast::PConstantExpressionNode node)
     std::string typeName = "void";
     Token token = node->GetToken();
 
+    // We resolve the type here so we can find base types in our symbol table.
+
     switch (token.type)
     {
     case Token::Type::VOID:
@@ -484,7 +486,7 @@ void Resolver::Visit(ast::PFunctionNode node)
         break;
     }
 
-    m_currentFun.reset(); // Padantic pointer clear.
+    m_currentFun.reset(); // Pedantic pointer clear.
 }
 
 /*************************************************************************/

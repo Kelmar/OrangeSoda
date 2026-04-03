@@ -106,7 +106,8 @@ namespace ast
     struct ITopLevelVisitor
     {
         virtual void Visit(PImportNode) = 0;
-        virtual void Visit(PGlobalVariableNode) =0;
+        virtual void Visit(PGlobalVariableNode) = 0;
+        virtual void Visit(PParameterDeclNode) = 0;
         virtual void Visit(PFunctionNode) = 0;
     };
 

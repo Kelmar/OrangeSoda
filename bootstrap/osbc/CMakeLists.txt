@@ -3,7 +3,6 @@
 set(EXECUTABLE_OUTPUT_PATH "../bin")
 
 set(SRCS "main.cpp"
-         "codegen.cpp"
          "lex.cpp"
          "parse.cpp"
          "declarer.cpp"
@@ -11,13 +10,13 @@ set(SRCS "main.cpp"
          "scope.cpp"
          "symbol.cpp"
          "symtable.cpp"
-         "ast/expr.cpp")
+         "ast/expr.cpp"
+)
 
 set(HDRS "osbc.h"
          "../include/bootstrap.h"
          "../include/opcodes.h"
          "error.h"
-         "codegen.h"
          "lex.h"
          "parse.h"
          "declarer.h"
@@ -25,7 +24,14 @@ set(HDRS "osbc.h"
          "scope.h"
          "symbol.h"
          "symtable.h"
-         "token.h")
+         "token.h"
+         
+)
+
+if (TARGET_6502)
+  list (APPEND SRCS "6502/codegen.cpp")
+  list(APPEND HDRS "6502/llvm.h")
+endif()
 
 if (USE_LLVM)
   find_package(LLVM REQUIRED CONFIG)
@@ -35,12 +41,9 @@ if (USE_LLVM)
 
   llvm_map_components_to_libnames(llvm_libs support core)
 
-  set (SRCS ${SRCS}
-            "llvm/codegen.cpp")
+  list (APPEND SRCS "llvm/codegen.cpp")
 
-  set (HDRS ${HDRS}
-            "llvm/llvm.h"
-            "llvm/codegen.h")
+  list(APPEND HDRS "llvm/llvm.h")
 
   add_definitions(${LLVM_DEFINTIONS})
 endif()

@@ -32,7 +32,7 @@ class Declarer : public ast::NodeVisitor
 private:
     PSymbolTable m_symbolTable;
 
-    PSymbol AddPrimitive(const std::string &name);
+    PSymbol AddPrimitive(const std::string &name, Token::Type constType);
     PSymbol AddBuiltIn(const std::string &name, PSymbol baseType);
 
     void LoadBuiltIns();

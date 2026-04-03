@@ -42,7 +42,7 @@ private:
     llvm::Value *m_valueResult;
 
 public:
-    /* constructor */ CodeGen();
+    /* constructor */ CodeGen(std::string_view sourceFileName);
     virtual ~CodeGen();
 
     virtual void Visit(ast::PModuleNode node) override;

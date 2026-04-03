@@ -7,7 +7,8 @@
 #include "parse.h"
 #include "declarer.h"
 #include "resolver.h"
-#include "codegen.h"
+
+#include "llvm/codegen.h"
 
 /*************************************************************************/
 
@@ -69,7 +70,8 @@ void Process(ast::PModuleNode root)
     //visitors.push_back(std::make_shared<BooleanShortCircuit>());
 
     // Last stage, generate the actual code.
-    visitors.push_back(std::make_shared<CodeGen>());
+    //visitors.push_back(std::make_shared<os_6502::CodeGen>());
+    visitors.push_back(std::make_shared<os_llvm::CodeGen>(g_filename));
 
     for (auto visitor : visitors)
         root->Accept(*visitor.get());

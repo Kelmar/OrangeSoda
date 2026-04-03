@@ -124,12 +124,10 @@ namespace ast
 
         PassByType GetPassBy() const { return m_passBy; }
 
-        /*
-        virtual void Accept(ITopLevelVisitor<T> &visitor)
+        virtual void Accept(ITopLevelVisitor &visitor)
         {
             return visitor.Visit(GetPtr());
         }
-        */
     };
 
     typedef std::shared_ptr<ParameterDeclNode> PParameterDeclNode;

@@ -108,11 +108,17 @@ protected:
     ast::PExpressionNode ParsePrimary();
 
     ast::PExpressionNode ParseUnary();
-    ast::PExpressionNode ParseFactor();
+    ast::PExpressionNode ParseMultiplicative();
     ast::PExpressionNode ParseAdditive();
     ast::PExpressionNode ParseShift();
     ast::PExpressionNode ParseRelational();
     ast::PExpressionNode ParseEquality();
+    ast::PExpressionNode ParseAnd();
+    ast::PExpressionNode ParseXor();
+    ast::PExpressionNode ParseOr();
+
+    ast::PExpressionNode ParseLogicalAnd();
+    ast::PExpressionNode ParseLogicalOr();
 
     ast::PExpressionNode ParseExpression();
 

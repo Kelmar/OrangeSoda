@@ -1,7 +1,6 @@
 Should be noted that the `const` and `readonly` keywords in OrangeSoda
 will behave more like C#'s versions.
 
-
 # `const`
 In this sense `const` describes a compile time value; and does not reserve
 any space in the runtime object that it resides in.
