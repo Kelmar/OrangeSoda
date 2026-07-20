@@ -1,6 +1,6 @@
 Assignments in OrangeSoda are statements like in Pascal.
 
-This means that the following is NOT leagal in OrangeSoda like it would be in other C based languages:
+This means that the following is NOT legal in OrangeSoda like it would be in other C based languages:
 
 ```osoda
 var foo : int;
@@ -13,7 +13,7 @@ You instead must write the following:
 var foo : int;
 
 foo = 5;
-if (foo == 10) { } // Okay, no assigment inside the if.
+if (foo == 10) { } // Okay, no assignment inside the if.
 ```
 
 The trade off is that you also cannot write:

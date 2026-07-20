@@ -3,14 +3,14 @@ A C like language.
 
 Currently working on a bootstrap compiler in C++.  There are several passes
 complete with this though has a few things left to add before we can start
-moving on to a selfhosted compiler.
+moving on to a self hosted compiler.
 
 # Goals
 The main goal is to provide a language that is a hybrid between, C++/C# with 
 a few features from Pascal (sets), Swift, and Ruby that can hopefully be used
 for writing both low level situations (embedded systems, and operating systems)
 but also provide good feature set for doing high level application development,
-E.g.: reflection, exceptiones, and other things expected from modern languages.
+E.g.: reflection, exceptions, and other things expected from modern languages.
 
 * C/C++/C# like syntax
 * Easy to interface with hardware at a low level (OS/Driver Development)

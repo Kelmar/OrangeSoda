@@ -1,6 +1,6 @@
 # C++ issues
 Building out a test OS in C++ I realized that the language likes to add all
-sorts of extra things to structs if you aren't careful.  For exmaple
+sorts of extra things to structs if you aren't careful.  For example
 
 ```cpp
 struct PageDirectory
@@ -52,7 +52,7 @@ struct PageDirectory
 }
 ```
 
-Effectively become symantic sugar for:
+Effectively become syntactic sugar for:
 ```osoda
 struct PageDirectory
 {

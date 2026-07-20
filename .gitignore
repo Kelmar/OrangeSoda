@@ -1,3 +1,6 @@
+# Ignore claude session info.
+CLAUDE.md
+
 # Prerequisites
 *.d
 
