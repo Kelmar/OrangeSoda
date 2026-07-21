@@ -78,10 +78,10 @@ namespace ast
 
         const Token &GetIdent() const { return m_ident; }
 
-        std::string ToString() const
-        {
-            return m_ident.literal;
-        }
+        // TODO: Create fully qualified name later.
+        std::string GetFullName() const { return m_ident.literal; }
+
+        std::string ToString() const { return GetFullName(); }
     };
 
     /****************************************************************/

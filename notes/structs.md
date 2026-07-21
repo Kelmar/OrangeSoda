@@ -45,7 +45,7 @@ struct PageDirectory
     // Actually declares a compile time constant, not a variable.
     const int size = 0x1000;
 
-    void Update()
+    function Update()
     {
         // Do thing here.        
     }
@@ -62,7 +62,7 @@ struct PageDirectory
 
 extend PageDirectory
 {
-    void Update()
+    function Update()
     {
         // Do thing here.
     }
@@ -72,3 +72,30 @@ extend PageDirectory
 # Additional Thoughts
 `struct` and `union` types should never have non-public members.  Extensions
 may have their own non-public methods and properties.
+
+`enum` is like C++ class enum, must be qualified with enum name.  Also considering Pascal style `set`, a.k.a. flags; but allowing for us of `in` keyword for flag tests:
+
+```osoda
+set WindowFlags
+{
+    MinimizeBox,
+    MaximizeBox,
+    CloseBox,
+    SystemMenu,
+    Sizeable
+}
+
+function FlagTest()
+{
+    var flags : WindowFlags;
+    flags = [ WindowFlags::MinimizeBox, WindowFlags::MaximizeBox ];
+    flags += WindowFlags::Sizable; // Add to set, same as bitwise | in C
+
+    if (WindowFlags::Sizable in flags) // For C: if ((flags & FOO) == FOO)
+    {
+        // Do Sizable is set
+    }
+
+    flags -= WindowFlags::Sizable; // Remove from set, same as bitwise & ~(FLAG) in C
+}
+```

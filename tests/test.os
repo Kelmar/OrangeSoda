@@ -3,11 +3,12 @@ import foo;
 var a: int;
 const five: int = 5;
 
-// Explict void return type
+// Explicit void return type
 function baz(): void
 {
     //five = doThing(5);
     a = doThing(five);
+    //a = doThing();
 }
 
 /*
@@ -21,10 +22,17 @@ function doThing(ref bar: int, bar: string): int
 }
 */
 
-function doThing(baz: int): int
+function doThing(b: int): int
 {
-    return baz * 2;
+    return b * 2;
 }
+
+/*
+function doThing(): int
+{
+    return 5;
+}
+*/
 
 /*
 function voidTest()
@@ -60,6 +68,7 @@ function bar()
     }
 
     //a = doThing(b);
+    //a = doThing();
     //b = doThing();
     //b = doThing(5);
     a = doThing(0);

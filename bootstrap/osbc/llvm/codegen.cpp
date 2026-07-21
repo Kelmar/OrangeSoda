@@ -14,6 +14,10 @@ namespace os_llvm
 {
 
 CodeGen::CodeGen(std::string_view sourceFileName)
+    : m_currentFunction()
+    , m_llvmFunction(nullptr)
+    , m_llvmBlock(nullptr)
+    , m_valueResult(nullptr)
 {
     m_context = std::make_unique<LLVMContext>();
     m_module = std::make_unique<Module>(sourceFileName, *m_context);
@@ -35,7 +39,7 @@ CodeGen::CodeGen(std::string_view sourceFileName)
     // Do simple "peephole" optimizations and bit-twiddling.
     m_fam->addPass(InstCombinePass());
 
-    // Reassociate expressions.
+    // Re-associate expressions.
     m_fam->addPass(ReassociatePass());
 
     // Eliminate common sub-expressions.
@@ -62,6 +66,38 @@ Value *CodeGen::process(const ast::ReferenceNode &refNode)
     return nullptr;
 }
 #endif
+
+/*************************************************************************/
+
+llvm::Type *CodeGen::TranslateType(ast::PReferenceNode node)
+{
+    //(void)node;
+    //return llvm::Type::getVoidTy(*m_context);
+
+    Token ident = node->GetIdent();
+
+    switch (ident.type)
+    {
+    case Token::Type::VOID:
+        return llvm::Type::getVoidTy(*m_context);
+
+    case Token::Type::INT:
+        return llvm::Type::getInt32Ty(*m_context);
+
+    case Token::Type::BOOL:
+        return llvm::Type::getInt8Ty(*m_context);
+
+    case Token::Type::CHAR:
+        //return llvm::Type::getByteTy(*m_context);
+
+    case Token::Type::STRING:
+        //return llvm::Type::getStringTy(*m_context);
+
+    default:
+        std::string errMsg = fmt::format("BUG: Unsupported type: {0}", ident.literal);
+        throw std::runtime_error(errMsg);
+    }
+}
 
 /*************************************************************************/
 // Root
@@ -148,7 +184,11 @@ void CodeGen::Visit(ast::PConstantExpressionNode node)
 
 void CodeGen::Visit(ast::PReferenceExpressionNode node)
 {
-    (void)node;
+    PSymbol symbol = node->GetSymbol();
+
+    // TODO: Replace with actual symbol lookup.
+    APInt val(32, 0, true);
+    m_valueResult = ConstantInt::get(*m_context, val);
 }
 
 /*************************************************************************/
@@ -172,15 +212,25 @@ void CodeGen::Visit(ast::PCallExpressionNode node)
 
 void CodeGen::Visit(ast::PBinaryExpressionNode node)
 {
-    (void)node;
+    Token::Type op = node->GetOperator();
 
-    node->GetLeft()->Accept(*this);
+    ast::PExpressionNode l = node->GetLeft();
+    ast::PExpressionNode r = node->GetRight();
+
+    ast::ExpressionNode *dbg_l = l.get();
+    ast::ExpressionNode *dbg_r = r.get();
+
+    (void)dbg_l;
+    (void)dbg_r;
+
+    l->Accept(*this);
     Value *left = m_valueResult;
 
-    node->GetRight()->Accept(*this);
+    r->Accept(*this);
     Value *right = m_valueResult;
 
-    Token::Type op = node->GetOperator();
+    if (!left || !right)
+        throw std::runtime_error("Binary expression missing sides!");
 
     switch (op)
     {
@@ -301,22 +351,29 @@ void CodeGen::Visit(ast::PVariableDeclStatementNode node)
 void CodeGen::Visit(ast::PCompoundStatementNode node)
 {
     // Restore parent block on exit.
-    auto parentBlock = m_currentBlock;
-    auto restore = defer([=, this] () { m_currentBlock = parentBlock; });
+    llvm::BasicBlock *parentBlock = m_llvmBlock;
 
-    m_currentBlock = BasicBlock::Create(*m_context, "", m_currentFunction);
+    auto restore = defer([=, this] ()
+    {
+        m_llvmBlock = parentBlock;
 
-    m_builder->SetInsertPoint(m_currentBlock);
+        if (m_llvmBlock)
+            m_builder->SetInsertPoint(m_llvmBlock);
+    });
+
+    m_llvmBlock = BasicBlock::Create(*m_context, "", m_llvmFunction);
+
+    m_builder->SetInsertPoint(m_llvmBlock);
 
     VisitAll(node->GetStatements());
 
-    m_builder->CreateRetVoid();
+    if (parentBlock)
+        return;
 
-    //m_blockResult = m_currentBlock;
-    m_currentBlock = parentBlock;
+    auto type = m_llvmFunction->getReturnType();
 
-    if (m_currentBlock)
-        m_builder->SetInsertPoint(m_currentBlock);
+    if (type->isVoidTy())
+        m_builder->CreateRetVoid();
 }
 
 /*************************************************************************/
@@ -346,7 +403,17 @@ void CodeGen::Visit(ast::PCallStatementNode node)
 
 void CodeGen::Visit(ast::PReturnStatementNode node)
 {
-    (void)node;
+    auto expr = node->GetValue();
+
+    if (expr)
+    {
+        expr->Accept(*this);
+        m_builder->CreateRet(m_valueResult);
+    }
+    else
+    {
+        m_builder->CreateRetVoid();
+    }
 }
 
 /*************************************************************************/
@@ -451,24 +518,44 @@ void CodeGen::Visit(ast::PParameterDeclNode node)
 
 void CodeGen::Visit(ast::PFunctionNode node)
 {
-    llvm::Type *retType = llvm::Type::getVoidTy(*m_context);
-    std::vector<llvm::Type *> args;
+    m_currentFunction = node;
 
-    FunctionType *funcType = FunctionType::get(retType, args, false);
+    llvm::Type *retType = TranslateType(node->GetType());
+
+    auto params = node->GetParameters();
+
+    std::vector<llvm::Type *> llvmParams;
+    llvmParams.reserve(params.size());
+
+    for (auto param : params)
+        llvmParams.push_back(TranslateType(param->GetType()));
+
+    FunctionType *funcType = FunctionType::get(retType, llvmParams, false);
 
     PSymbol name = node->GetSymbol();
 
-    m_currentFunction = Function::Create(funcType, Function::ExternalLinkage, name->name(), *m_module);
+    m_llvmFunction = Function::Create(funcType, Function::ExternalLinkage, name->name(), *m_module);
+
+    int i = 0;
+    for (auto &arg : m_llvmFunction->args())
+    {
+        auto parameter = params[i++];
+        Token ident = parameter->GetIdent();
+        arg.setName(ident.literal);
+
+        parameter->codeGen = &arg;
+    }
 
     node->GetBody()->Accept(*this);
 
-    if (verifyFunction(*m_currentFunction, &llvm::errs()))
+    if (verifyFunction(*m_llvmFunction, &llvm::errs()))
         abort(); // Function has errors
 
     // Run function pass optimizations.
     //m_fpm->run(*m_currentFunction, *m_fam);
 
     m_currentFunction = nullptr; // Pedantic clear
+    m_llvmFunction = nullptr;
 }
 
 /*************************************************************************/

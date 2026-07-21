@@ -25,6 +25,7 @@ class Symbol
 public:
     enum class UseType
     {
+        Invalid,
         Function,
         Variable,
         Parameter, // Like variable but may have special in/out/ref handling.
@@ -48,6 +49,16 @@ private:
         , m_parent(parent)
         , m_index(index)
         , m_name(name)
+        , lineNumber(0)
+        , useType(UseType::Invalid)
+        , passBy(PassByType::Default)
+        , exporting(false)
+        , isConst(false)
+        , isSpecial(false)
+        , baseType()
+        , constType()
+        , constLiteral()
+        , codeGen(nullptr)
     {
     }
 
@@ -69,7 +80,7 @@ public:
     // Add a parameter to this symbol.
     void AddParameter(PSymbol symbol) { m_parameters.push_back(symbol); }
 
-    // The line number the symbol was defined on.
+    /// @brief The line number the symbol was defined on.
     int lineNumber;
 
     // The type of symbol defined.
@@ -96,6 +107,9 @@ public:
 
     // String of the actual constant literal.
     std::string constLiteral;
+
+    // Opaque pointer for code generation.
+    void *codeGen;
 };
 
 /*************************************************************************/

@@ -36,10 +36,15 @@ private:
 #endif
 
     // Function that we're currently compiling
-    llvm::Function *m_currentFunction;
-    llvm::BasicBlock *m_currentBlock;
+    ast::PFunctionNode m_currentFunction;
+    llvm::Function *m_llvmFunction;
+
+    llvm::BasicBlock *m_llvmBlock;
 
     llvm::Value *m_valueResult;
+
+private:
+    llvm::Type *TranslateType(ast::PReferenceNode node);
 
 public:
     /* constructor */ CodeGen(std::string_view sourceFileName);

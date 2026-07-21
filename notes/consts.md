@@ -17,7 +17,7 @@ will not modify an object that gets passed in.
 class MyPrinter
 {
     // Function stipulates it will not modify contents referenced in w.
-    public void Print(readonly Widget w)
+    public function Print(readonly w: Widget)
     {
         
     }

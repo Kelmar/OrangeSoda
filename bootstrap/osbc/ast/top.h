@@ -110,6 +110,7 @@ namespace ast
             : Node(ident.lineNumber)
             , DeclNode(ident, type)
             , m_passBy(passBy)
+            , codeGen(nullptr)
         {
         }
 
@@ -128,6 +129,9 @@ namespace ast
         {
             return visitor.Visit(GetPtr());
         }
+
+        // Opaque pointer for code generation.
+        void *codeGen;
     };
 
     typedef std::shared_ptr<ParameterDeclNode> PParameterDeclNode;
@@ -159,6 +163,7 @@ namespace ast
             , m_parameters(parameters)
             , m_symbolTable()
             , m_body(body)
+            , codeGen(nullptr)
         {
         }
 
@@ -193,6 +198,9 @@ namespace ast
         {
             return visitor.Visit(GetPtr());
         }
+        
+        // Opaque pointer for code generation.
+        void *codeGen;
     };
 
     typedef std::shared_ptr<FunctionNode> PFunctionNode;

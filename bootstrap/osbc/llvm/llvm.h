@@ -6,6 +6,8 @@
 
 /*************************************************************************/
 
+#include "llvm-20/llvm/Support/Compiler.h"
+
 #include "llvm-20/llvm/ADT/APInt.h"
 #include "llvm-20/llvm/ADT/APFloat.h"
 #include "llvm-20/llvm/ADT/STLExtras.h"

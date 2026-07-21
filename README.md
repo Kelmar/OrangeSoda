@@ -34,7 +34,7 @@ Current rough syntax example:
 ```
 import submodule;
 
-var baz : int; // Global variable
+var baz: int; // Global variable
 
 function doThing()
 {
